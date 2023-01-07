@@ -1,0 +1,14 @@
+//
+// Created by Nama on 07/01/2023.
+//
+
+#ifndef MACHINE_LEARNING_SEMESTRE1_SLN_MAIN_H
+#define MACHINE_LEARNING_SEMESTRE1_SLN_MAIN_H
+
+
+class main {
+
+};
+
+
+#endif //MACHINE_LEARNING_SEMESTRE1_SLN_MAIN_H
