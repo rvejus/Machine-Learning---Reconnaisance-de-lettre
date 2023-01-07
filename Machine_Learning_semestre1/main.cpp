@@ -55,8 +55,13 @@ void EntrainementLineaire(vector<point> points, vector<int> classes, vector<floa
 		}
 		else {
 			gXk = -1;
-		}
-		//W[k] += 0, 01 * (yK - gXk) * Xk;
+		} 
+		float temp = 0.01 * (yK - gXk);
+		float res = temp * Xk[0];
+		res += temp * Xk[1];
+		res += temp * Xk[2];
+		W[k] += res;
+		//W[k] += 0.01 * (yK - gXk) * Xk;
 
 	}
 }
