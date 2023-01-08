@@ -15,6 +15,8 @@ struct point
 };
 
 void EntrainementLineaire(vector<point> points, vector<int> classes, vector<float> W);
+float RandomFloat(float min, float max);
+void AffichageSeparation(vector<float> W);
 
 void main() {
 
@@ -28,14 +30,26 @@ void main() {
 	std::vector<int> classes = { 1,1,-1 };
 
 	vector<float> W;
-	
-	//EntrainementLineaire(points,classes, W);
+	for (int i = 0; i < 3; i++) {
+		float r = RandomFloat(-1, 1);
+		W.push_back(r);
+	}
+	// On entraine notre modele 
+	EntrainementLineaire(points,classes, W);
 
-
+	AffichageSeparation(W);
 
 
 }
 
+float RandomFloat(float min, float max)
+{
+
+	float random = ((float)rand()) / (float)RAND_MAX;
+
+	float range = max - min;
+	return (random * range) + min;
+}
 
 void EntrainementLineaire(vector<point> points, vector<int> classes, vector<float> W) {
 
@@ -63,5 +77,27 @@ void EntrainementLineaire(vector<point> points, vector<int> classes, vector<floa
 		W[k] += res;
 		//W[k] += 0.01 * (yK - gXk) * Xk;
 
+	}
+	cout << "Entrainement termine" << endl;
+}
+
+void AffichageSeparation(vector<float> W) {
+
+	std::vector<point> test_points = {};
+	std::vector<int> test_classes = {};
+
+	for (float row = 0; row < 300; row++) {
+		for (float col = 0; col < 300; col++) {
+			std::vector<point> p = {point(col/100,row/100)};
+			float couleur = (W[0] * 1) + (W[1] * p[0].x) + (W[2] * p[0].y);
+			if (couleur >= 0) {
+				couleur = 1;
+			}
+			else {
+				couleur = 2;
+			}
+			test_points.push_back(p[0]);
+			test_classes.push_back(couleur);
+		}
 	}
 }
