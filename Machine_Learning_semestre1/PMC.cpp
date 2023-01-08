@@ -87,12 +87,11 @@ void PMC::_propagate(std::vector<float> inputs, bool is_classification) {
 			//std::cout << "end j for" << std::endl;
 		}
 	}
+	std::cout << "finished propagate" << std::endl;
 }
 
 vector<float> PMC::predict(std::vector<float> inputs, bool is_classification) {
 	this->_propagate(inputs, is_classification);
-	std::cout << "finished propagate" << std::endl;
-	//std::vector<float> selected = std::vector<float>(X[L].begin() + 1, X[L].end());
 	return std::vector<float>(X[L].begin() + 1, X[L].end());
 }
 
@@ -102,16 +101,25 @@ void PMC::train(vector<vector<float>> X_train,
 	float alpha = 0.01,
 	int nb_iter=10000) 
 {
+	std::cout << "train" << std::endl;
 	for (int it = 0; it<=nb_iter; it++) {
+		std::cout << "it= " << it << std::endl;
 		int k = rand() % (nb_iter + 1);
+		std::cout << "k= " << k << std::endl;
 		std::vector<float> Xk = X_train[k];
 		std::vector<float> Yk = Y_train[k];
 
 		this->_propagate(Xk, is_classification);
-		for (int j = 1; j<=D[L] + 1; j++) {
+
+		std::cout << "D len " << D.size() << std::endl;
+		for (int j = 1; j<D[L] + 1; j++) {
+			std::cout << "j= " << j << std::endl;
+
 			delta[L][j] = X[L][j] - Yk[j - 1];
 			if (is_classification) {
+				std::cout << "is_class" << std::endl;
 				delta[L][j] = delta[L][j] * (std::pow(1 - X[L][j],2));
+				std::cout << "is_class finished" << std::endl;
 			}
 		}
 		for (int l = D.size(); l >= 2; l--) {
