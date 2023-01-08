@@ -8,6 +8,7 @@ class PMC
 {
 public :
 	PMC(vector<int> npl);
+	~PMC();
 	// Liste des poids
 	vector<vector<vector<float>>> W;
 	//le nombre de neurones appartenant à la couche l 

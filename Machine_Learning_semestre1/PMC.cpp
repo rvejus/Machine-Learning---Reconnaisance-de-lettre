@@ -53,6 +53,30 @@ PMC::PMC(std::vector<int> npl) {
 	//std::cout << "finished X & delta" << std::endl;
 }
 
+PMC::~PMC() {
+	// Desaloc de W
+
+	/*for (int i = 0; i < this->W.size(); i++) {
+		for (int j = 0; i < this->W[i].size(); i++) {
+			this->W[i][j].clear();
+		}
+		this->W[i].clear();
+	}*/
+	this->W.clear();
+
+	/*for (int i = 0; i < this->X.size(); i++) {
+		this->X[i].clear();
+	}*/
+	this->X.clear();
+
+	/*for (int i = 0; i < this->delta.size(); i++) {
+		this->delta[i].clear();
+	}*/
+	this->delta.clear();
+
+	this->D.clear();
+}
+
 void PMC::_propagate(std::vector<float> inputs, bool is_classification) {
 	for (int j = 1; j<=D[0] + 1;j++) {
 		X[0][j] = inputs[j - 1];
