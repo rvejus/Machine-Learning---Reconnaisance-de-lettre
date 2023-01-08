@@ -62,3 +62,9 @@ void PMC::_propagate (std::vector<float> inputs, bool is_classification) {
 		}
 	}
 }
+
+vector<float> PMC::predict(std::vector<float> inputs, bool is_classification) {
+	_propagate(inputs, is_classification);
+	//std::vector<float> selected = std::vector<float>(X[L].begin() + 1, X[L].end());
+	return std::vector<float>(X[L].begin() + 1, X[L].end());
+}

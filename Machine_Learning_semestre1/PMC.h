@@ -20,5 +20,6 @@ public :
 
 	PMC(vector<int> npl);
 	void _propagate(vector<float> inputs, bool is_classification) {};
+	vector<float> predict(vector<float> inputs, bool is_classification) {};
 };
 
