@@ -1,22 +1,23 @@
 #pragma once
 #include <iostream>
 #include <list>
+#include <vector>
 using namespace std;
 
 class PMC
 {
 public : 
 	// Liste des poids
-	list<list<float>> W;
+	vector<vector<float>> W;
 	//le nombre de neurones appartenant à la couche l 
-	list<int> D; 
+	vector<int> D; 
 
 	//identifiant de la derniere couche 
 	int L;
 	//Valeurs de sortie des Neurones
-	list<float> X{};
-	list<float> delta{};
+	vector<vector<float>> X{};
+	vector<vector<float>> delta{};
 
-	PMC(list<int> npl);
+	PMC(vector<int> npl);
 };
 
