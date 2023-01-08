@@ -7,7 +7,7 @@ PMC::PMC(std::vector<int> npl) {
 
 	// Initialisation des W
 
-	std::vector<std::vector<std::vector<float>>> W;
+	//std::vector<std::vector<std::vector<float>>> W;
 
 	for (int l = 0; D.size(); l++) {
 		W.emplace_back(std::vector<std::vector<float>>());
@@ -42,5 +42,23 @@ PMC::PMC(std::vector<int> npl) {
 			}
 		}
 	}
+}
 
+void PMC::_propagate (std::vector<float> inputs, bool is_classification) {
+	for (int j = 1; D[0] + 1;j++) {
+		X[0][j] = inputs[j - 1];
+	}
+
+	for (int l = 1; D.size(); l++) {
+		for (int j = 1; D[l] + 1; l++) {
+			int total = 0;
+			for (int i = 0; D[l - 1] + 1;i++) {
+				total += W[l][i][j] * X[l - 1][i];
+			}
+			X[l][j] = total;
+			if (is_classification || l<L) {
+				X[l][j] = std::tanh(total);
+			}
+		}
+	}
 }

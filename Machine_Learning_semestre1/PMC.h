@@ -11,7 +11,7 @@ public :
 	vector<vector<float>> W;
 	//le nombre de neurones appartenant à la couche l 
 	vector<int> D; 
-
+	std::vector<std::vector<std::vector<float>>> W;
 	//identifiant de la derniere couche 
 	int L;
 	//Valeurs de sortie des Neurones
@@ -19,5 +19,6 @@ public :
 	vector<vector<float>> delta{};
 
 	PMC(vector<int> npl);
+	void _propagate(vector<float> inputs, bool is_classification) {};
 };
 
