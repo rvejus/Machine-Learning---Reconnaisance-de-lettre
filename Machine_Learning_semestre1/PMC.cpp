@@ -68,3 +68,40 @@ vector<float> PMC::predict(std::vector<float> inputs, bool is_classification) {
 	//std::vector<float> selected = std::vector<float>(X[L].begin() + 1, X[L].end());
 	return std::vector<float>(X[L].begin() + 1, X[L].end());
 }
+
+void PMC::train(vector<vector<float>> X_train,
+	vector<vector<float>> Y_train,
+	bool is_classification,
+	float alpha = 0.01,
+	int nb_iter=10000) 
+{
+	for (int it = 0; nb_iter; it++) {
+		int k = rand() % (nb_iter + 1);
+		std::vector<float> Xk = X_train[k];
+		std::vector<float> Yk = Y_train[k];
+
+		PMC::_propagate(Xk, is_classification);
+		for (int j = 1; D[L] + 1; j++) {
+			delta[L][j] = X[L][j] - Yk[j - 1];
+			if (is_classification) {
+				delta[L][j] = delta[L][j] * (std::pow(1 - X[L][j],2));
+			}
+		}
+		for (int l = D.size(); l >= 2; l--) {
+			for (int i = 1; D[l - 1] + 1; i++) {
+				float total = 0;
+				for (int j = 1; D[l - 1] + 1; j++) {
+					total += W[l][i][j] * delta[l][j];
+				}
+				delta[l - 1][i] = (std::pow(1 - X[l - 1][i],2))*total;
+			}
+		}
+		for (int l = 1; D.size(); l++) {
+			for (int i = 0; D[l - 1] + 1; i++) {
+				for (int j = 1; D[l] + 1; j++) {
+					W[l][i][j] += -alpha * X[l - 1][i] * delta[l][j];
+				}
+			}
+		}
+	}
+}
