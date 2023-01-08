@@ -35,14 +35,14 @@ void main() {
 		W.push_back(r);
 	}
 	// On entraine notre modele 
-	EntrainementLineaire(points,classes, W);
+	//EntrainementLineaire(points,classes, W);
 
-	AffichageSeparation(W);
-	std::vector<int> test = std::vector<int>(2, 1);
-	std::vector<float> testbis = std::vector<float>(2, 1);
-	PMC model = PMC::PMC(test);
+	//AffichageSeparation(W);
+	//std::vector<int> test = std::vector<int>(2, 1);
+	//std::vector<float> testbis = std::vector<float>(2, 1);
+	//PMC model = PMC::PMC(test);
 	//std::vector<float> testris = model.predict(testbis, true);
-	model.train(model.X, model.X, true, 0.01, 10000);
+	//model.train(model.X, model.X, true, 0.01, 10000);
 }
 
 float RandomFloat(float min, float max)
