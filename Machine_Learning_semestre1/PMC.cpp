@@ -104,7 +104,7 @@ void PMC::train(vector<vector<float>> X_train,
 	std::cout << "train" << std::endl;
 	for (int it = 0; it<=nb_iter; it++) {
 		std::cout << "it= " << it << std::endl;
-		int k = rand() % (nb_iter + 1);
+		int k = rand() % (X_train.size() + 1);
 		std::cout << "k= " << k << std::endl;
 		std::vector<float> Xk = X_train[k];
 		std::vector<float> Yk = Y_train[k];
