@@ -63,25 +63,28 @@ void PMC::_propagate(std::vector<float> inputs, bool is_classification) {
 	for (int l = 1; l<D.size(); l++) {
 		std::cout << "l" << std::endl;
 
-		for (int j = 1; j<=D[l] + 1; j++) {
+		for (int j = 1; j<D[l] + 1; j++) {
 			std::cout << "j" << std::endl;
 			int total = 0;
 			for (int i = 0; i<=D[l - 1] + 1;i++) {
-				std::cout << i << std::endl;
-				std::cout << D[l - 1] + 1 << std::endl;
-				std::cout << "i" << std::endl;
-				std::cout << X[l - 1][i] << std::endl;
+				//std::cout <<"l= " << l << std::endl;
+				//std::cout << "i= " << i << std::endl;
+				//std::cout << "j= " << j << std::endl;
+				//std::cout << "W[l][0][0]= " << W[l][0][0] << std::endl;
+				//std::cout << "W[l][i][0]= " << W[l][i][0] << std::endl;
+				//std::cout << "D[l - 1] + 1= " << D[l - 1] + 1 << std::endl;
+				//std::cout << "X[l - 1][i]= " << X[l - 1][i] << std::endl;
 				total += this->W[l][i][j] * X[l - 1][i];
 
 			}
-			std::cout << "finished i for" << std::endl;
+			//std::cout << "finished i for" << std::endl;
 			X[l][j] = total;
 			if (is_classification || l<L) {
-				std::cout << "is_class" << std::endl;
+				//std::cout << "is_class" << std::endl;
 				X[l][j] = std::tanh(total);
-				std::cout << "is_class passed" << std::endl;
+				//std::cout << "is_class passed" << std::endl;
 			}
-			std::cout << "end j for" << std::endl;
+			//std::cout << "end j for" << std::endl;
 		}
 	}
 }

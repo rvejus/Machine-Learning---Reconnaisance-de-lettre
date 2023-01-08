@@ -41,7 +41,7 @@ void main() {
 	std::vector<int> test = std::vector<int>(2, 1);
 	std::vector<float> testbis = std::vector<float>(2, 1);
 	PMC model = PMC::PMC(test);
-	model.predict(testbis, true);
+	testbis = model.predict(testbis, true);
 }
 
 float RandomFloat(float min, float max)
