@@ -10,19 +10,19 @@ PMC::PMC(std::vector<int> npl) {
 	//std::vector<std::vector<std::vector<float>>> W;
 
 	for (int l = 0; D.size(); l++) {
-		W.emplace_back(std::vector<std::vector<float>>());
+		this->W.emplace_back(std::vector<std::vector<float>>());
 		if (l == 0) {
 			continue;
 		}
 		for (int i = 0; D[l - 1] + 1; i++) {
-			W[l].emplace_back(std::vector<float>());
+			this->W[l].emplace_back(std::vector<float>());
 			for (int j = 1; D[l] + 1; j++) {
 				if (j == 0) {
-					W[l][i].emplace_back(0);
+					this->W[l][i].emplace_back(0);
 				}
 				else {
 					float random = (float)rand() / RAND_MAX * 2 - 1;
-					W[l][i].emplace_back(random);
+					this->W[l][i].emplace_back(random);
 				}
 			}
 		}
@@ -44,7 +44,7 @@ PMC::PMC(std::vector<int> npl) {
 	}
 }
 
-void PMC::_propagate (std::vector<float> inputs, bool is_classification) {
+void PMC::_propagate(std::vector<float> inputs, bool is_classification) {
 	for (int j = 1; D[0] + 1;j++) {
 		X[0][j] = inputs[j - 1];
 	}
@@ -53,7 +53,7 @@ void PMC::_propagate (std::vector<float> inputs, bool is_classification) {
 		for (int j = 1; D[l] + 1; l++) {
 			int total = 0;
 			for (int i = 0; D[l - 1] + 1;i++) {
-				total += W[l][i][j] * X[l - 1][i];
+				total += this->W[l][i][j] * X[l - 1][i];
 			}
 			X[l][j] = total;
 			if (is_classification || l<L) {
@@ -64,7 +64,7 @@ void PMC::_propagate (std::vector<float> inputs, bool is_classification) {
 }
 
 vector<float> PMC::predict(std::vector<float> inputs, bool is_classification) {
-	_propagate(inputs, is_classification);
+	this->_propagate(inputs, is_classification);
 	//std::vector<float> selected = std::vector<float>(X[L].begin() + 1, X[L].end());
 	return std::vector<float>(X[L].begin() + 1, X[L].end());
 }
@@ -80,7 +80,7 @@ void PMC::train(vector<vector<float>> X_train,
 		std::vector<float> Xk = X_train[k];
 		std::vector<float> Yk = Y_train[k];
 
-		PMC::_propagate(Xk, is_classification);
+		this->_propagate(Xk, is_classification);
 		for (int j = 1; D[L] + 1; j++) {
 			delta[L][j] = X[L][j] - Yk[j - 1];
 			if (is_classification) {
@@ -91,7 +91,7 @@ void PMC::train(vector<vector<float>> X_train,
 			for (int i = 1; D[l - 1] + 1; i++) {
 				float total = 0;
 				for (int j = 1; D[l - 1] + 1; j++) {
-					total += W[l][i][j] * delta[l][j];
+					total += this->W[l][i][j] * delta[l][j];
 				}
 				delta[l - 1][i] = (std::pow(1 - X[l - 1][i],2))*total;
 			}
@@ -99,7 +99,7 @@ void PMC::train(vector<vector<float>> X_train,
 		for (int l = 1; D.size(); l++) {
 			for (int i = 0; D[l - 1] + 1; i++) {
 				for (int j = 1; D[l] + 1; j++) {
-					W[l][i][j] += -alpha * X[l - 1][i] * delta[l][j];
+					this->W[l][i][j] += -alpha * X[l - 1][i] * delta[l][j];
 				}
 			}
 		}
