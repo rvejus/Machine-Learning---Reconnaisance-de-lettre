@@ -6,7 +6,8 @@ using namespace std;
 
 class PMC
 {
-public : 
+public :
+	PMC(vector<int> npl);
 	// Liste des poids
 	vector<vector<vector<float>>> W;
 	//le nombre de neurones appartenant à la couche l 
@@ -17,7 +18,6 @@ public :
 	vector<vector<float>> X{};
 	vector<vector<float>> delta{};
 
-	PMC(vector<int> npl);
 	void _propagate(vector<float> inputs, bool is_classification);
 	vector<float> predict(vector<float> inputs, bool is_classification);
 	void train(vector<vector<float>> X_train, vector<vector<float>> Y_train, bool is_classification, float alpha, int nb_iter);
