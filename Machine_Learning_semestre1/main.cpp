@@ -4,19 +4,8 @@
 #include <vector>
 
 
-struct point
-{
-	float x;
-	float y;
-	point(float a, float b) {
-		x = a;
-		y = b;
-	}
-};
 
-void EntrainementLineaire(vector<point> points, vector<int> classes, vector<float> W);
-float RandomFloat(float min, float max);
-void AffichageSeparation(vector<float> W);
+
 
 void main() {
 
@@ -103,4 +92,8 @@ void AffichageSeparation(vector<float> W) {
 			test_classes.push_back(couleur);
 		}
 	}
+}
+
+void add_to_vector(std::vector<int>* vec, float value) {
+	vec->push_back(value);
 }

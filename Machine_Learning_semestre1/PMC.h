@@ -4,23 +4,52 @@
 #include <vector>
 using namespace std;
 
-class PMC
-{
-public :
-	PMC(vector<int> npl);
-	~PMC();
-	// Liste des poids
-	vector<vector<vector<float>>> W;
-	//le nombre de neurones appartenant à la couche l 
-	vector<int> D; 
-	//identifiant de la derniere couche 
-	int L;
-	//Valeurs de sortie des Neurones
-	vector<vector<float>> X{};
-	vector<vector<float>> delta{};
 
-	void _propagate(vector<float> inputs, bool is_classification);
-	vector<float> predict(vector<float> inputs, bool is_classification);
-	void train(vector<vector<float>> X_train, vector<vector<float>> Y_train, bool is_classification, float alpha, int nb_iter);
-};
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	class PMC
+	{
+	public:
+		PMC(vector<int> npl);
+		~PMC();
+		// Liste des poids
+		vector<vector<vector<float>>> W;
+		//le nombre de neurones appartenant à la couche l 
+		vector<int> D;
+		//identifiant de la derniere couche 
+		int L;
+		//Valeurs de sortie des Neurones
+		vector<vector<float>> X{};
+		vector<vector<float>> delta{};
+
+		void _propagate(vector<float> inputs, bool is_classification);
+		vector<float> predict(vector<float> inputs, bool is_classification);
+		void train(vector<vector<float>> X_train, vector<vector<float>> Y_train, bool is_classification, float alpha, int nb_iter);
+	};
+
+	struct point
+	{
+		float x;
+		float y;
+		point(float a, float b) {
+			x = a;
+			y = b;
+		}
+	};
+
+
+	__declspec(dllexport) void EntrainementLineaire(vector<point> points, vector<int> classes, vector<float> W);
+	__declspec(dllexport) float RandomFloat(float min, float max);
+	__declspec(dllexport) void AffichageSeparation(vector<float> W);
+	__declspec(dllexport) void add_to_vector(vector<int>* vec, float value);
+		
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
 
