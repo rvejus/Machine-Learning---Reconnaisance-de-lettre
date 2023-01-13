@@ -9,7 +9,7 @@ using namespace std;
 extern "C" {
 #endif
 
-	class PMC
+	class __declspec(dllexport) PMC
 	{
 	public:
 		PMC(vector<int> npl);
@@ -40,10 +40,10 @@ extern "C" {
 	};
 
 
-	__declspec(dllexport) void EntrainementLineaire(vector<point> points, vector<int> classes, vector<float> W);
-	__declspec(dllexport) float RandomFloat(float min, float max);
-	__declspec(dllexport) void AffichageSeparation(vector<float> W);
-	__declspec(dllexport) void add_to_vector(vector<int>* vec, float value);
+	extern "C"	__declspec(dllexport) void EntrainementLineaire(vector<point> points, vector<int> classes, vector<float> W);
+	extern "C"	__declspec(dllexport) float RandomFloat(float min, float max);
+	extern "C"	__declspec(dllexport) void AffichageSeparation(vector<float> W);
+	extern "C"	__declspec(dllexport) void add_to_vector(vector<int>*vec, float value);
 		
 
 
