@@ -24,7 +24,4 @@ extern "C"	FONCTION_API struct point
 extern "C"	FONCTION_API void HelloWorld();
 extern "C"	FONCTION_API void EntrainementLineaire(point *points, int *classes, float *W, int nbElem);
 extern "C"	FONCTION_API float RandomFloat(float min, float max);
-extern "C"	FONCTION_API void AffichageSeparation(vector<float> W);
-extern "C"	FONCTION_API void add_to_vectorFloat(vector<float>*vec, float value);
-extern "C"	FONCTION_API void add_to_vectorPoint(vector<point>*vec, point value);
-extern "C"	FONCTION_API void add_to_vectorInt(vector<int>*vec, int value);
+extern "C"	FONCTION_API void AffichageSeparation(float* W, point * test_points, int* test_classes);

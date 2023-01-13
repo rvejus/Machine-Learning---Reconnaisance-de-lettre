@@ -1,17 +1,7 @@
 #include "pch.h"
 #include "fonction.h"
 
-void add_to_vectorFloat(std::vector<float>* vec, float value) {
-	vec->push_back(value);
-}
 
-void add_to_vectorPoint(std::vector<point>* vec, point value) {
-	vec->push_back(value);
-}
-
-void add_to_vectorInt(std::vector<int>* vec, int value) {
-	vec->push_back(value);
-}
 
 void EntrainementLineaire(point *points, int *classes, float *W, int nbElem) {
 
@@ -28,41 +18,45 @@ void EntrainementLineaire(point *points, int *classes, float *W, int nbElem) {
 			gXk = 1;
 		}
 		else {
-			gXk = -1;
+			gXk = 0;
 		}
-		float temp = 0.01 * (yK - gXk);
-		/*float res = temp * Xk[0];
+		float tmp = 0.01 * (yK - gXk);
+		cout << "temp : " << tmp << endl;
+	/*float res = temp * Xk[0];
 		res += temp * Xk[1];
 		res += temp * Xk[2];
 		W[k] += res; */
 		
 		for (int i = 0; i < 3; i++) {
-			W[i] += temp * Xk[i];
-		}
+			W[i] += tmp * Xk[i];
+		} 
 
 	}
 	cout << W[0] << " / " << W[1] << " / " << W[2] << endl;
 	cout << "Entrainement termine" << endl;
+	
 }
 
 
-void AffichageSeparation(float *W) {
+void AffichageSeparation(float *W , point *test_points , int* test_classes) {
 
-	std::vector<point> test_points = {};
-	std::vector<int> test_classes = {};
-
+	
+	point p(0,0);
+	int i = 0;
 	for (float row = 0; row < 300; row++) {
 		for (float col = 0; col < 300; col++) {
-			std::vector<point> p = { point(col / 100,row / 100) };
-			float couleur = (W[0] * 1) + (W[1] * p[0].x) + (W[2] * p[0].y);
+			p.x = col / 100;
+			p.y = row / 100;
+			float couleur = (W[0] * 1) + (W[1] * p.x) + (W[2] * p.y);
 			if (couleur >= 0) {
-				couleur = 1;
+				couleur = 0;
 			}
 			else {
-				couleur = 2;
+				couleur = 1;
 			}
-			test_points.push_back(p[0]);
-			test_classes.push_back(couleur);
+			test_points[i] = p;
+			test_classes[i] = couleur;
+			i++;
 		}
 	}
 }
