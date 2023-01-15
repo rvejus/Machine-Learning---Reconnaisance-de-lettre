@@ -3,45 +3,48 @@
 
 
 
-void EntrainementLineaire(point *points, int *classes, float *W, int nbElem) {
+float* EntrainementLineaire(point* points, int* classes, float* W, int nbElem) {
 
+
+	std::cout << points[0].x << "-" << points[0].y << " / " << points[1].x << "-" << points[1].y << " / " << points[2].x << "-" << points[2].y << endl;
+	std::cout << classes[0] << " / " << classes[1] << " / " << classes[2] << endl;
 	for (int i = 0; i < 10000; i++) {
 		int k = rand() % nbElem;
-		int yK = classes[k];
-		int Xk[3] = { 1, points[k].x, points[k].y };
-		
 
-		int gXk = 0;
-		float resgXk = 0;
-		resgXk = (W[0] * Xk[0]) + (W[1] * Xk[1]) + (W[2] * Xk[2]);
-		if (resgXk >= 0) {
+		int yK = classes[k];
+		//cout << "point k " << points[k].x << " -- " << points[k].y << endl;
+		float Xk[3] = { 1, points[k].x, points[k].y };
+		//cout << "Xk " << Xk[1] << " -- " << Xk[2] << endl;
+
+		float gXk = 0;
+		
+			gXk += W[0] * Xk[0];
+			gXk += W[1] * Xk[1];
+			gXk += W[2] * Xk[2];
+		
+		if (gXk >= 0) {
 			gXk = 1;
 		}
 		else {
-			gXk = 0;
+			gXk = -1;
 		}
-		float tmp = 0.01 * (yK - gXk);
-		cout << "temp : " << tmp << endl;
-	/*float res = temp * Xk[0];
-		res += temp * Xk[1];
-		res += temp * Xk[2];
-		W[k] += res; */
-		
-		for (int i = 0; i < 3; i++) {
-			W[i] += tmp * Xk[i];
-		} 
+
+		W[0] += 0.01 * (yK - gXk) * Xk[0];
+		W[1] += 0.01 * (yK - gXk) * Xk[1];
+		W[2] += 0.01 * (yK - gXk) * Xk[2];
+
 
 	}
-	cout << W[0] << " / " << W[1] << " / " << W[2] << endl;
-	cout << "Entrainement termine" << endl;
-	
+	std::cout << "W entrainer : " << W[0] << " / " << W[1] << " / " << W[2] << endl;
+	std::cout << "Entrainement termine" << endl;
+	return W;
 }
 
 
 void AffichageSeparation(float *W , point *test_points , int* test_classes) {
 
-	
-	point p(0,0);
+
+	point p(0, 0);
 	int i = 0;
 	for (float row = 0; row < 300; row++) {
 		for (float col = 0; col < 300; col++) {
@@ -187,7 +190,6 @@ float* PMC::predict(float* inputs, bool is_classification) {
 void PMC::train(float** X_train,
 	int X_train_size,
 	float** Y_train,
-	int Y_train_size,
 	bool is_classification,
 	float alpha = 0.01,
 	int nb_iter = 10000)
