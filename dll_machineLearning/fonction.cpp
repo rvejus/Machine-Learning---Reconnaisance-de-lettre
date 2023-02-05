@@ -3,12 +3,12 @@
 
 
 
-float* EntrainementLineaire(point* points, int* classes, float* W, int nbElem) {
+double* EntrainementLineaire(point* points, int* classes, double* W, int nbElem) {
 
 
 	std::cout << points[0].x << "-" << points[0].y << " / " << points[1].x << "-" << points[1].y << " / " << points[2].x << "-" << points[2].y << endl;
 	std::cout << classes[0] << " / " << classes[1] << " / " << classes[2] << endl;
-	for (int i = 0; i < 10000; i++) {
+	for (int i = 0; i < 100000; i++) {
 		int k = rand() % nbElem;
 
 		int yK = classes[k];
@@ -21,19 +21,19 @@ float* EntrainementLineaire(point* points, int* classes, float* W, int nbElem) {
 			gXk += W[0] * Xk[0];
 			gXk += W[1] * Xk[1];
 			gXk += W[2] * Xk[2];
-		
-		if (gXk >= 0) {
-			gXk = 1;
-		}
-		else {
-			gXk = -1;
-		}
+			
+			
+				if (gXk >= 0) {
+					gXk = 1;
+				}
+				else {
+					gXk = -1;
+				}
 
-		W[0] += 0.01 * (yK - gXk) * Xk[0];
-		W[1] += 0.01 * (yK - gXk) * Xk[1];
-		W[2] += 0.01 * (yK - gXk) * Xk[2];
-
-
+				W[0] += 0.01 * (yK - gXk) * Xk[0];
+				W[1] += 0.01 * (yK - gXk) * Xk[1];
+				W[2] += 0.01 * (yK - gXk) * Xk[2];
+			
 	}
 	std::cout << "W entrainer : " << W[0] << " / " << W[1] << " / " << W[2] << endl;
 	std::cout << "Entrainement termine" << endl;
@@ -41,7 +41,7 @@ float* EntrainementLineaire(point* points, int* classes, float* W, int nbElem) {
 }
 
 
-void AffichageSeparation(float *W , point *test_points , int* test_classes) {
+void AffichageSeparation(double *W , point *test_points , int* test_classes) {
 
 
 	point p(0, 0);
@@ -249,4 +249,39 @@ void PMC::train(float** X_train,
 			}
 		}
 	}
+}
+
+
+point* entrainementRBFNaif(point * points, point* centres, int nbCouleur) {
+	
+	for (int i = 0; i < nbCouleur; i++) {
+		centres[i].x = points[i].x;
+		centres[i].y = points[i].y;
+	}
+	return centres;
+}
+
+int* predictionRBFNaif(point* points, int nbPoints, point* centres, int nbCouleur) {
+	
+	float *distance = (float*)malloc(sizeof(float) * nbCouleur);
+	int* prediction = (int*)malloc(sizeof(int) * nbPoints);
+
+
+	for (int i = 0; i < nbPoints; i++) {
+		for (int j = 0; i < nbCouleur; j++) {
+			float distancePoint = pow(points[i].x - centres[j].x, 2) + pow(points[i].y - centres[j].y, 2);
+			distancePoint = exp(-distancePoint);
+			distance = &distancePoint;
+		}
+		int classeAssocie = 0;
+		for (int j = 1; j < nbCouleur; j++) {
+			if (distance[j] > distance[classeAssocie]) {
+				classeAssocie = j;
+			}
+		}
+		prediction[i] = classeAssocie;
+	}
+
+	return prediction;
+
 }
