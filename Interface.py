@@ -301,20 +301,6 @@ def RegressionLineaireSimple() :
    plt.show()
 
 
-#	//std::vector<float> testbis = std::vector<float>(2, 1);
-#	//PMC model = PMC::PMC(test);
-#	//std::vector<float> testris = model.predict(testbis, true);
-#	//model.train(model.X, model.X, true, 0.01, 10000);
-
-# npl = (c_int * 3)(2, 3, 1)
-# nplSize = len(npl)
-#
-#
-# _dll.PMC.argtypes = [POINTER(c_int), c_int]
-# _dll.PMC.restype = c_void_p
-
-# pmc_instance = pmc_constructor(npl,nplSize)
-
 ClassificationLinearMultiple()
 #ClassificationLinearSimple()
 #RegressionLineaireSimple()

@@ -65,12 +65,9 @@ void AffichageSeparation(double *W , point *test_points , int* test_classes) {
 }
 
 
-
-
 void HelloWorld() {
 	printf("HelloWorld");
 }
-
 
 
 PMC::PMC(int* npl,int nplSize) {
@@ -251,30 +248,34 @@ void PMC::train(float** X_train,
 	}
 }
 
+double CalculDistance(point A, point B) {
+	return sqrt(pow(A.x - B.x, 2) + pow(A.y - B.y, 2));
+}
 
-point* entrainementRBFNaif(point * points, point* centres, int nbCouleur) {
+
+point* initCentreRBFNaif(point * points, point* centres, int nbCluster) {
 	
-	for (int i = 0; i < nbCouleur; i++) {
+	for (int i = 0; i < nbCluster; i++) {
 		centres[i].x = points[i].x;
 		centres[i].y = points[i].y;
 	}
 	return centres;
 }
 
-int* predictionRBFNaif(point* points, int nbPoints, point* centres, int nbCouleur) {
+int* predictionRBFNaif(point* points, int nbPoints, point* centres, int nbCluster) {
 	
-	float *distance = (float*)malloc(sizeof(float) * nbCouleur);
+	double *distance = (double*)malloc(sizeof(double) * nbCluster);
 	int* prediction = (int*)malloc(sizeof(int) * nbPoints);
 
 
 	for (int i = 0; i < nbPoints; i++) {
-		for (int j = 0; i < nbCouleur; j++) {
-			float distancePoint = pow(points[i].x - centres[j].x, 2) + pow(points[i].y - centres[j].y, 2);
+		for (int j = 0; i < nbCluster; j++) {
+			double distancePoint = CalculDistance(points[i], centres[j]);
 			distancePoint = exp(-distancePoint);
 			distance = &distancePoint;
 		}
 		int classeAssocie = 0;
-		for (int j = 1; j < nbCouleur; j++) {
+		for (int j = 1; j < nbCluster; j++) {
 			if (distance[j] > distance[classeAssocie]) {
 				classeAssocie = j;
 			}
