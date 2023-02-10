@@ -69,6 +69,151 @@ void HelloWorld() {
 	printf("HelloWorld");
 }
 
+void propagatePMC(float*** W, float** X, int* D, int D_size, int L, float* inputs, bool is_classification) {
+	for (int j = 1; j <= D[0] + 1; j++) {
+		X[0][j] = inputs[j - 1];
+	}
+
+	for (int l = 1; l < D_size; l++) {
+
+		for (int j = 1; j < D[l] + 1; j++) {
+			
+			int total = 0;
+
+			for (int i = 0; i <= D[l - 1] + 1; i++) {
+	
+				total += W[l][i][j] * X[l - 1][i];
+
+			}
+			
+			X[l][j] = total;
+			if (is_classification || l < L) {
+				
+				X[l][j] = std::tanh(total);
+				
+			}
+		}
+	}
+}
+
+float* predictPMC(float*** W, float** X, int* D, int D_size, int L,float* inputs, bool is_classification) {
+	propagatePMC( W, X,  D,  D_size,  L,  inputs,  is_classification);
+	//D[L]+1 pour la taille du dernier Layer et -1 pour retirer le biais 
+	int output_size = D[L] + 1 - 1;
+	float* output = (float*)malloc(output_size * sizeof(float));
+	for (int i = 0; i < output_size; i++) {
+		output[i] = X[L][i + 1];
+	}
+	return output;
+}
+
+void trainPMC(float** delta, float*** W, float** X, int* D, int D_size, int L, float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha, int nb_iter) {
+	for (int it = 0; it <= nb_iter; it++) {
+
+		int k = rand() % (X_train_size);
+		
+		float* Xk = X_train[k];
+		
+		float* Yk = Y_train[k];
+		
+
+		propagatePMC( W,  X, D, D_size, L, Xk, is_classification);
+
+		
+		for (int j = 1; j < D[L] + 1; j++) {
+			
+
+			delta[L][j] = X[L][j] - Yk[j - 1];
+			if (is_classification) {
+				
+				delta[L][j] = delta[L][j] * (std::pow(1 - X[L][j], 2));
+				
+			}
+		}
+		
+
+		for (int l = D_size - 1; l >= 2; l--) {
+			
+			for (int i = 1; i < D[l - 1] + 1; i++) {
+				
+				float total = 0;
+				for (int j = 1; j < D[l - 1] + 1; j++) {
+					
+					total += W[l][i][j] * delta[l][j];
+					
+				}
+				delta[l - 1][i] = (std::pow(1 - X[l - 1][i], 2)) * total;
+			}
+		}
+		for (int l = 1; l < D_size; l++) {
+	
+			for (int i = 0; i < D[l - 1] + 1; i++) {
+				
+				for (int j = 1; j < D[l] + 1; j++) {
+					
+					W[l][i][j] += -alpha * X[l - 1][i] * delta[l][j];
+
+				}
+			}
+		}
+	}
+}
+
+void initPMC(float*** W, float* D, int D_size, int L, float**X, float** delta, int* npl, int nplSize) {
+	D = (float*)npl;
+	D_size = nplSize;
+	L = nplSize - 1;
+
+	// Initialisation des W
+
+	W = (float***)malloc(sizeof(float**) * nplSize);
+
+	for (int l = 0; l < nplSize; l++) {
+		W[l] = (float**)malloc(sizeof(float*) * (npl[l - 1] + 2));
+		if (l == 0) {
+		
+			continue;
+		}
+		for (int i = 0; i <= D[l - 1] + 1; i++) {
+
+			
+			W[l][i] = (float*)malloc(sizeof(float) * (npl[l] + 2));
+			for (int j = 1; j <= D[l] + 1; j++) {
+			
+
+				if (j == 0) {
+					W[l][i][j] = 0.0;
+				}
+				else {
+					float random = (float)rand() / RAND_MAX * 2 - 1;
+					W[l][i][j] = random;
+				}
+			}
+		}
+	}
+	std::cout << "finished W" << std::endl;
+	//Initialisation des X et des deltas
+	//Init de la mémoire de la 1ere dimention pour les tableaux
+	X = (float**)malloc(sizeof(float*) * nplSize);
+	delta = (float**)malloc(sizeof(float*) * nplSize);
+	for (int l = 0; l < nplSize; l++) {
+		//std::cout << "l" << std::endl;
+		X[l] = (float*)malloc(sizeof(float) * (npl[l] + 2));
+		delta[l] = (float*)malloc(sizeof(float) * (npl[l] + 2));
+		for (int j = 0; j <= D[l] + 1; j++) {
+
+			delta[l][j] = 0;
+			if (j == 0) {
+				X[l][j] = 1;
+			}
+			else {
+				X[l][j] = 0;
+			}
+		}
+	}
+
+	std::cout << "finished X & delta" << std::endl;
+}
 
 PMC::PMC(int* npl,int nplSize) {
 	this->D = npl;
