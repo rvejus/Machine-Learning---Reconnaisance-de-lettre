@@ -23,13 +23,13 @@ extern "C"	FONCTION_API struct point
 
 
 extern "C"	FONCTION_API void HelloWorld();
-extern "C"	FONCTION_API double* EntrainementLineaire(point *points, int *classes, double *W, int nbElem);
-extern "C"	FONCTION_API void AffichageSeparation(double* W, point * test_points, int* test_classes);
+extern "C"	FONCTION_API double* EntrainementLineaire(float **points, int *classes, double *W, int nbElem);
+extern "C"	FONCTION_API void AffichageSeparation(double* W, float** test_points, int* test_classes);
 
 extern "C"	FONCTION_API double CalculDistance(point A, point B);
 
-extern "C"	FONCTION_API point * initCentreRBFNaif(point * points, point * centres, int nbCluster);
-extern "C"	FONCTION_API int* predictionRBFNaif(point* points, int nbPoints, point* centres, int nbCluster);
+extern "C"	FONCTION_API point * initCentreRBF(point * points, point * centres, int nbCluster);
+extern "C"	FONCTION_API int* predictionRBF(point* points, int nbPoints, point* centres, int nbCluster);
 
 
 	class __declspec(dllexport) PMC

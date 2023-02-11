@@ -3,37 +3,37 @@
 
 
 
-double* EntrainementLineaire(point* points, int* classes, double* W, int nbElem) {
+double* EntrainementLineaire(float** points, int* classes, double* W, int nbElem) {
 
 
-	std::cout << points[0].x << "-" << points[0].y << " / " << points[1].x << "-" << points[1].y << " / " << points[2].x << "-" << points[2].y << endl;
+	std::cout << points[0][0] << "-" << points[0][1] << " / " << points[1][0] << "-" << points[1][1] << " / " << points[2][0] << "-" << points[2][1] << endl;
 	std::cout << classes[0] << " / " << classes[1] << " / " << classes[2] << endl;
 	for (int i = 0; i < 100000; i++) {
 		int k = rand() % nbElem;
 
 		int yK = classes[k];
-		//cout << "point k " << points[k].x << " -- " << points[k].y << endl;
-		float Xk[3] = { 1, points[k].x, points[k].y };
-		//cout << "Xk " << Xk[1] << " -- " << Xk[2] << endl;
+
+		float Xk[3] = { 1, points[k][0], points[k][1] };
+
 
 		float gXk = 0;
-		
-			gXk += W[0] * Xk[0];
-			gXk += W[1] * Xk[1];
-			gXk += W[2] * Xk[2];
-			
-			
-				if (gXk >= 0) {
-					gXk = 1;
-				}
-				else {
-					gXk = -1;
-				}
 
-				W[0] += 0.01 * (yK - gXk) * Xk[0];
-				W[1] += 0.01 * (yK - gXk) * Xk[1];
-				W[2] += 0.01 * (yK - gXk) * Xk[2];
-			
+		gXk += W[0] * Xk[0];
+		gXk += W[1] * Xk[1];
+		gXk += W[2] * Xk[2];
+
+
+		if (gXk >= 0) {
+			gXk = 1;
+		}
+		else {
+			gXk = -1;
+		}
+
+		W[0] += 0.01 * (yK - gXk) * Xk[0];
+		W[1] += 0.01 * (yK - gXk) * Xk[1];
+		W[2] += 0.01 * (yK - gXk) * Xk[2];
+
 	}
 	std::cout << "W entrainer : " << W[0] << " / " << W[1] << " / " << W[2] << endl;
 	std::cout << "Entrainement termine" << endl;
@@ -41,23 +41,23 @@ double* EntrainementLineaire(point* points, int* classes, double* W, int nbElem)
 }
 
 
-void AffichageSeparation(double *W , point *test_points , int* test_classes) {
+void AffichageSeparation(double* W, float** test_points, int* test_classes) {
 
-
-	point p(0, 0);
+	float p[2];
 	int i = 0;
 	for (float row = 0; row < 300; row++) {
 		for (float col = 0; col < 300; col++) {
-			p.x = col / 100;
-			p.y = row / 100;
-			float couleur = (W[0] * 1) + (W[1] * p.x) + (W[2] * p.y);
+			p[0] = col / 100;
+			p[1] = row / 100;
+			float couleur = (W[0] * 1) + (W[1] * p[0]) + (W[2] * p[1]);
 			if (couleur >= 0) {
 				couleur = 0;
 			}
 			else {
 				couleur = 1;
 			}
-			test_points[i] = p;
+			test_points[i][0] = p[0];
+			test_points[i][1] = p[1];
 			test_classes[i] = couleur;
 			i++;
 		}
@@ -70,7 +70,7 @@ void HelloWorld() {
 }
 
 
-PMC::PMC(int* npl,int nplSize) {
+PMC::PMC(int* npl, int nplSize) {
 	this->D = npl;
 	this->D_size = nplSize;
 	this->L = nplSize - 1;
@@ -97,7 +97,7 @@ PMC::PMC(int* npl,int nplSize) {
 				}
 				else {
 					float random = (float)rand() / RAND_MAX * 2 - 1;
-					this->W[l][i][j] =random;
+					this->W[l][i][j] = random;
 				}
 			}
 		}
@@ -115,7 +115,7 @@ PMC::PMC(int* npl,int nplSize) {
 			//std::cout << "j" << std::endl;
 			delta[l][j] = 0;
 			if (j == 0) {
-				X[l][j] =1;
+				X[l][j] = 1;
 			}
 			else {
 				X[l][j] = 0;
@@ -129,15 +129,15 @@ PMC::PMC(int* npl,int nplSize) {
 PMC::~PMC() {
 	// Desaloc de W
 	free(this->W);
-	
+
 	free(this->X);
-	
+
 	free(this->delta);
 
 	free(this->D);
 }
 
-void PMC::_propagate(float *inputs, bool is_classification) {
+void PMC::_propagate(float* inputs, bool is_classification) {
 	for (int j = 1; j <= D[0] + 1; j++) {
 		X[0][j] = inputs[j - 1];
 	}
@@ -253,36 +253,56 @@ double CalculDistance(point A, point B) {
 }
 
 
-point* initCentreRBFNaif(point * points, point* centres, int nbCluster) {
-	
+point* initCentreRBF(point* points, point* centres, int nbCluster) {
+
 	for (int i = 0; i < nbCluster; i++) {
-		centres[i].x = points[i].x;
-		centres[i].y = points[i].y;
+		centres[i].x = rand() / RAND_MAX;
+		centres[i].y = rand() / RAND_MAX;
 	}
 	return centres;
 }
 
-int* predictionRBFNaif(point* points, int nbPoints, point* centres, int nbCluster) {
+double gaussian(point A, point B, float sigma) {
+	double dist = CalculDistance(A, B);
+	return exp(-dist * dist / (2 * sigma * sigma));
+}
+
+int* predictionRBF(point* points, int nbPoints, point* centres, int nbCluster) {
 	
-	double *distance = (double*)malloc(sizeof(double) * nbCluster);
-	int* prediction = (int*)malloc(sizeof(int) * nbPoints);
+	int* assignement = (int*)malloc(sizeof(int) * nbPoints);
 
-
-	for (int i = 0; i < nbPoints; i++) {
-		for (int j = 0; i < nbCluster; j++) {
-			double distancePoint = CalculDistance(points[i], centres[j]);
-			distancePoint = exp(-distancePoint);
-			distance = &distancePoint;
-		}
-		int classeAssocie = 0;
-		for (int j = 1; j < nbCluster; j++) {
-			if (distance[j] > distance[classeAssocie]) {
-				classeAssocie = j;
+	for (int r = 0; r < 1000; r++) {
+		for (int i = 0; i < nbPoints; i++) {
+			int indexCentreMin = 0;
+			double distanceMin = CalculDistance(points[i], centres[0]);
+			for (int j = 1; j < nbCluster; j++) {
+				double distance = CalculDistance(points[i], centres[j]);
+				if (distance < distanceMin) {
+					indexCentreMin = j;
+					distanceMin = distance;
+				}
 			}
+			assignement[i] = indexCentreMin;
 		}
-		prediction[i] = classeAssocie;
+		// on recalcul le centres des points 
+		point* majCentre = (point*)malloc(sizeof(point) * nbCluster);
+		int* nbPointDansCluster = (int*)malloc(sizeof(int) * nbCluster);
+
+		for (int i = 0; i < nbPoints; i++) {
+			int a = assignement[i];
+
+			majCentre[a].x += points[a].x;
+			majCentre[a].y += points[a].y;
+			nbPointDansCluster[a]++;	
+		}
+
+		for (int i = 0; i < nbCluster; i++) {
+			centres[i].x = majCentre[i].x / nbPointDansCluster[i];
+			centres[i].y = majCentre[i].y / nbPointDansCluster[i];
+		}
 	}
 
-	return prediction;
+
+	return;
 
 }

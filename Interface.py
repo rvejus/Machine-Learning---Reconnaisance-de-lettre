@@ -8,6 +8,7 @@ _dll = cdll.LoadLibrary("C:/Users/33783/Documents/5A3DJV/Machine Learning/Machin
 
 
 
+
 #def color_grid(W, width, height):
 #    test_points = []
 #    test_colors = []
@@ -29,16 +30,24 @@ def ClassificationLinearSimple () :
    class Point(Structure):
       _fields_ = [("x", c_float), ("y", c_float)]
 
-   _dll.EntrainementLineaire.argtypes = [POINTER(Point), POINTER(c_int), POINTER(c_double), c_int]
+   _dll.EntrainementLineaire.argtypes = [POINTER(POINTER(c_int)), POINTER(c_int), POINTER(c_double), c_int]
    _dll.EntrainementLineaire.restype = POINTER(c_double)
 
-   _dll.AffichageSeparation.argtypes = [POINTER(c_double), POINTER(Point), POINTER(c_int)]
+   _dll.AffichageSeparation.argtypes = [POINTER(c_double), POINTER(POINTER(c_int)), POINTER(c_int)]
    _dll.AffichageSeparation.restype = None
 
-   points = [Point(1, 1), Point(2, 3), Point(3, 3)]
-   c_arrayPoint = (Point * len(points))(*points)
+   point = ((c_int * 2) * 3)()
+   for i in range(3):
+        point[i] = (c_int * 2)()
 
-   pointSize = len(points)
+   for i in range(3):
+     for j in range(2):
+        point[i][j] = random.randint(0,3)
+
+   #points = [Point(1, 1), Point(2, 3), Point(3, 3)]
+   #c_arrayPoint = (Point * len(points))(*points)
+
+   pointSize = len(point)
 
    classes = [1,0,0]
    c_arrayClasses = (c_int * len(classes))(*classes)
@@ -51,36 +60,36 @@ def ClassificationLinearSimple () :
 
 
    # On lance l'entrainement linéaire
-   W = _dll.EntrainementLineaire(c_arrayPoint, c_arrayClasses, c_arrayW, len(points))
+   W = _dll.EntrainementLineaire(point, c_arrayClasses, c_arrayW, pointSize)
 
-   test_points = (Point * 90000)()
-   test_colors = (c_int * 90000)()
+#  test_points = (Point * 90000)()
+#  test_colors = (c_int * 90000)()
 
-   # On calcul les zones de couleur
-   _dll.AffichageSeparation(c_arrayW, test_points, test_colors)
+#  # On calcul les zones de couleur
+#  _dll.AffichageSeparation(c_arrayW, test_points, test_colors)
 
-   x_test_points = []
-   y_test_points = []
+#  x_test_points = []
+#  y_test_points = []
 
-   for Point in test_points:
-       x_test_points.append(float(Point.x))
-       y_test_points.append(float(Point.y))
+#  for Point in test_points:
+#      x_test_points.append(float(Point.x))
+#      y_test_points.append(float(Point.y))
 
-   x_points = []
-   y_points = []
+#  x_points = []
+#  y_points = []
 
-   for Point in points:
-       x_points.append(float(Point.x))
-       y_points.append(float(Point.y))
+#  for Point in points:
+#      x_points.append(float(Point.x))
+#      y_points.append(float(Point.y))
 
-   test_color_string = ["lightcyan" if i == 0 else "pink" for i in test_colors]
-   classes_string = ["blue" if i == 0 else "red" for i in classes]
+#  test_color_string = ["lightcyan" if i == 0 else "pink" for i in test_colors]
+#  classes_string = ["blue" if i == 0 else "red" for i in classes]
 
-   # on affiche le tout
+#  # on affiche le tout
 
-   plt.scatter(x_test_points, y_test_points, c=test_color_string)
-   plt.scatter(x_points, y_points, c=classes_string)
-   plt.show()
+#  plt.scatter(x_test_points, y_test_points, c=test_color_string)
+#  plt.scatter(x_points, y_points, c=classes_string)
+#  plt.show()
 
 
 ######################################################
@@ -301,7 +310,7 @@ def RegressionLineaireSimple() :
    plt.show()
 
 
-ClassificationLinearMultiple()
-#ClassificationLinearSimple()
+#ClassificationLinearMultiple()
+ClassificationLinearSimple()
 #RegressionLineaireSimple()
 #ClassificationXOR()
