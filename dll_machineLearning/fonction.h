@@ -31,15 +31,18 @@ extern "C"	FONCTION_API double CalculDistance(point A, point B);
 extern "C"	FONCTION_API point * initCentreRBF(point * points, point * centres, int nbCluster);
 extern "C"	FONCTION_API int* predictionRBF(point* points, int nbPoints, point* centres, int nbCluster);
 
-extern "C"	FONCTION_API void propagatePMC(float*** W, float** X, int* D, int D_size, float* inputs, bool is_classification);
-extern "C"  FONCTION_API float* predictPMC(float*** W, float** X, int* D, int D_size, int L, float* inputs, bool is_classification);
-extern "C"  FONCTION_API void trainPMC(float** delta, float*** W, float** X, int* D, int D_size, int L, float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha = 0.01, int nb_iter = 10000);
-extern "C"  FONCTION_API void initPMC(float*** W, float* D, int D_size, int L, float** X, float** delta, int* npl, int nplSize);
+
+
+
 	class __declspec(dllexport) PMC
 	{
 	public:
 		PMC(int* npl, int nplSize);
 		~PMC();
+
+		static PMC* createInstance(int* npl, int nplsize) {
+			return new(std::nothrow) PMC(npl, nplsize);
+		}
 		// Liste des poids
 		float*** W;
 		//le nombre de neurones appartenant à la couche l 
@@ -56,3 +59,8 @@ extern "C"  FONCTION_API void initPMC(float*** W, float* D, int D_size, int L, f
 		void train(float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha, int nb_iter);
 	};
 
+	extern "C"	FONCTION_API void propagatePMC(PMC * instance, float* inputs, bool is_classification);
+	extern "C"  FONCTION_API float* predictPMC(PMC * instance, float* inputs, bool is_classification);
+	extern "C"  FONCTION_API void trainPMC(PMC * instance, float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha = 0.01, int nb_iter = 10000);
+	extern "C"  FONCTION_API PMC * initPMC(int* npl, int nplSize);
+	

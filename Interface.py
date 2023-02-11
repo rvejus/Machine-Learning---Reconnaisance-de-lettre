@@ -2,24 +2,49 @@ import random
 from ctypes import *
 import matplotlib.pyplot as plt
 import numpy as np
+import copy
 
 # import dll
 _dll = cdll.LoadLibrary("C:/Users/33783/Documents/5A3DJV/Machine Learning/Machine-Learning---Reconnaisance-de-lettre/dll_machineLearning.dll")
 
+_dll.initPMC.argtypes = [POINTER(c_int), c_int]
+_dll.initPMC.restype = c_void_p
+
+_dll.propagatePMC.argtypes = [c_void_p,POINTER(c_float), c_bool]
+_dll.propagatePMC.restype = None
+
+_dll.predictPMC.argtypes = [c_void_p,POINTER(c_float), c_bool]
+_dll.predictPMC.restype = POINTER(c_float)
+
+_dll.trainPMC.argtypes = [c_void_p,POINTER(POINTER(c_float)),c_int,POINTER(POINTER(c_float)),c_bool,c_float,c_int]
+_dll.trainPMC.restype = None
 
 
+class PMC(object):
+   def __init__(self,npl,nplSize):
+      self._as_parameter_ = _dll.initPMC(npl,nplSize)
 
-#def color_grid(W, width, height):
-#    test_points = []
-#    test_colors = []
-#    for row in range(height):
-#        for col in range(width):
-#            p = (col / 100, row / 100)
-#            tmp = W[0] + W[1] * p[0] + W[2] * p[1]
-#            c = 'lightcyan' if tmp >= 0 else 'pink'
-#            test_points.append(p)
-#            test_colors.append(c)
-#    return test_points, test_colors
+   def _propagate(self, inputs, is_classification):
+      _dll.propagatePMC(self, inputs, is_classification)
+
+   def predict(self, inputs, is_classification):
+      return _dll.predictPMC(self, inputs, is_classification)
+
+   def train(self, X_train, X_train_size, Y_train, is_classification, alpha = 0.1, nb_iter = 10000):
+      return _dll.trainPMC(self, X_train, X_train_size, Y_train, is_classification, alpha, nb_iter)
+
+
+def color_grid(W, width, height):
+    test_points = []
+    test_colors = []
+    for row in range(height):
+        for col in range(width):
+            p = (col / 100, row / 100)
+            tmp = W[0] + W[1] * p[0] + W[2] * p[1]
+            c = 'lightcyan' if tmp >= 0 else 'pink'
+            test_points.append(p)
+            test_colors.append(c)
+    return test_points, test_colors
 
 
 ######################################################
@@ -311,6 +336,77 @@ def RegressionLineaireSimple() :
 
 
 #ClassificationLinearMultiple()
-ClassificationLinearSimple()
+#ClassificationLinearSimple()
 #RegressionLineaireSimple()
 #ClassificationXOR()
+
+npl = [2,2,1]
+npl_ptr = (c_int * len(npl))(*npl)
+size = len(npl)
+
+pmc = PMC(npl_ptr,size)
+
+#points = [[0.0,1.0],[1.0,1.0],[0.0,1.0],[1.0,0.0]]
+#
+#point_array_ptr = (POINTER(c_float) * len(points))()
+#
+#for i, point in enumerate(points):
+#    point_i_array = (c_float * len(point))
+#    point_array_ptr[i] = point_i_array
+
+xor_points = np.array([
+    [0, 0],
+    [1, 1],
+    [0, 1],
+    [1, 0],
+], dtype=np.float32)
+
+rows, cols = xor_points.shape
+
+ptr = (POINTER(c_float) * rows)()
+for i in range(rows):
+    ptr[i] = xor_points[i].ctypes.data_as(POINTER(c_float))
+
+color = [[0],[0],[1],[1]]
+colorbis = [[-1],[-1],[1],[1]]
+n_elements = len(color) * len(color[0])
+
+# Créer un tableau de flottants en C
+color_array = (c_float * n_elements)()
+
+color_array_ptr = (POINTER(c_float) * len(color))()
+for i, couleur in enumerate(color):
+    # Créer un tableau de flottants pour chaque point
+    color_array = (c_float * len(couleur))(*couleur)
+    # Stocker ce tableau dans le tableau de pointeurs
+    color_array_ptr[i] = color_array
+
+
+
+pmc.train(ptr,len(xor_points),color_array_ptr,True)
+
+test_points = []
+test_colors = []
+for row in range(0,300):
+    for col in range(0,300):
+        p = (col / 100-1, row / 100-1)
+        p_list = list(p)
+        p_ptr = (c_float * len(p_list))(*p_list)
+        c = 'lightcyan' if pmc.predict(p_ptr,True)[0] >= 0 else 'pink'
+       # print(pmc.predict(p_ptr,True)[0])
+        test_points.append(p)
+        test_colors.append(c)
+test_points = np.array(test_points)
+test_colors = np.array(test_colors)
+
+array_1d = np.array(colorbis).flatten()
+
+xor_colors = ['blue' if c == 1 else 'red' for c in array_1d]
+
+
+
+
+
+plt.scatter(test_points[:, 0], test_points[:, 1], c=test_colors)
+plt.scatter(xor_points[:, 0], xor_points[:, 1], c=xor_colors)
+plt.show()
