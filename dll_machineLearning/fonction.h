@@ -21,7 +21,7 @@ extern "C"	FONCTION_API struct point
 	}
 };
 
-
+extern "C"	FONCTION_API double* EntrainementLineaireImage(double* data, double* classe, double* W, int nbImages, int nbValue);
 extern "C"	FONCTION_API void HelloWorld();
 extern "C"	FONCTION_API double* EntrainementLineaire(float **points, int *classes, double *W, int nbElem);
 extern "C"	FONCTION_API void AffichageSeparation(double* W, float** test_points, int* test_classes);
@@ -61,6 +61,6 @@ extern "C"	FONCTION_API int* predictionRBF(point* points, int nbPoints, point* c
 
 	extern "C"	FONCTION_API void propagatePMC(PMC * instance, float* inputs, bool is_classification);
 	extern "C"  FONCTION_API float* predictPMC(PMC * instance, float* inputs, bool is_classification);
-	extern "C"  FONCTION_API void trainPMC(PMC * instance, float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha = 0.01, int nb_iter = 10000);
+	extern "C"  FONCTION_API void trainPMC(PMC * instance, float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha = 0.01, int nb_iter = 100000);
 	extern "C"  FONCTION_API PMC * initPMC(int* npl, int nplSize);
 	

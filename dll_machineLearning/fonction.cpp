@@ -203,6 +203,8 @@ void PMC::_propagate(float* inputs, bool is_classification) {
 }
 
 float* PMC::predict(float* inputs, bool is_classification) {
+	
+
 	this->_propagate(inputs, is_classification);
 	//D[L]+1 pour la taille du dernier Layer et -1 pour retirer le biais 
 	int output_size = D[L] + 1 - 1;
@@ -334,4 +336,38 @@ int* predictionRBF(point* points, int nbPoints, point* centres, int nbCluster) {
 
 	return assignement;
 
+}
+
+double* EntrainementLineaireImage(double* data, double* classe, double* W,int nbImages, int nbValue) {
+	srand(time(NULL));
+
+	// On rendomise nos poids initial
+	for (int i = 0; i < nbValue + 1; i++) {
+		W[i] = (double)rand() / RAND_MAX;
+	}
+
+	for (int i = 0; i < 100000; i++) {
+		int k = rand() % nbImages;
+		double Yk = classe[k];
+		double *Xk = (double*)malloc(sizeof(double) * nbValue +1);
+		Xk[0] = 1.0;
+		for (int j = 0; j < nbValue; j++) {
+			Xk[j + 1] = data[k * 28 + j];
+		}
+
+		double GXk = 0;
+		for (int j = 0; j < nbValue; j++) {
+			GXk += W[j] * Xk[j];
+		}
+		if (GXk >= 0) {
+			GXk = 1;
+		}
+		else { 
+			GXk = -1;
+		}
+		for (int j = 0; j < nbValue + 1; j++) {
+			W[j] += 0.01 * (Yk - GXk) * Xk[j];
+		}
+	}
+	return W;
 }

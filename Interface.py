@@ -1,37 +1,40 @@
+import os
 import random
 from ctypes import *
+
 import matplotlib.pyplot as plt
 import numpy as np
-import copy
+import cv2
 
-# import dll
 _dll = cdll.LoadLibrary("C:/Users/33783/Documents/5A3DJV/Machine Learning/Machine-Learning---Reconnaisance-de-lettre/dll_machineLearning.dll")
 
 _dll.initPMC.argtypes = [POINTER(c_int), c_int]
 _dll.initPMC.restype = c_void_p
 
-_dll.propagatePMC.argtypes = [c_void_p,POINTER(c_float), c_bool]
+_dll.propagatePMC.argtypes = [c_void_p, POINTER(c_float), c_bool]
 _dll.propagatePMC.restype = None
 
-_dll.predictPMC.argtypes = [c_void_p,POINTER(c_float), c_bool]
+_dll.predictPMC.argtypes = [c_void_p, POINTER(c_float), c_bool]
 _dll.predictPMC.restype = POINTER(c_float)
 
-_dll.trainPMC.argtypes = [c_void_p,POINTER(POINTER(c_float)),c_int,POINTER(POINTER(c_float)),c_bool,c_float,c_int]
+_dll.trainPMC.argtypes = [c_void_p, POINTER(POINTER(c_float)), c_int, POINTER(POINTER(c_float)), c_bool, c_float,c_int]
 _dll.trainPMC.restype = None
 
+_dll.EntrainementLineaireImage.argtypes = [POINTER(c_double),POINTER(c_double), POINTER(c_double), c_int,c_int]
+_dll.EntrainementLineaireImage.restype = POINTER(c_double)
 
 class PMC(object):
-   def __init__(self,npl,nplSize):
-      self._as_parameter_ = _dll.initPMC(npl,nplSize)
+    def __init__(self,npl,nplSize):
+        self._as_parameter_ = _dll.initPMC(npl,nplSize)
 
-   def _propagate(self, inputs, is_classification):
-      _dll.propagatePMC(self, inputs, is_classification)
+    def _propagate(self, inputs, is_classification):
+        _dll.propagatePMC(self, inputs, is_classification)
 
-   def predict(self, inputs, is_classification):
-      return _dll.predictPMC(self, inputs, is_classification)
+    def predict(self, inputs, is_classification):
+        return _dll.predictPMC(self, inputs, is_classification)
 
-   def train(self, X_train, X_train_size, Y_train, is_classification, alpha = 0.1, nb_iter = 10000):
-      return _dll.trainPMC(self, X_train, X_train_size, Y_train, is_classification, alpha, nb_iter)
+    def train(self, X_train, X_train_size, Y_train, is_classification, alpha = 0.1, nb_iter = 10000):
+        return _dll.trainPMC(self, X_train, X_train_size, Y_train, is_classification, alpha, nb_iter)
 
 
 def color_grid(W, width, height):
@@ -46,156 +49,194 @@ def color_grid(W, width, height):
             test_colors.append(c)
     return test_points, test_colors
 
+# Fonction load des images du dataset d'entrainement
+def loadDataSet():
+    C = "Dataset/C/"
+    N = "Dataset/N/"
+    S = "Dataset/S/"
+
+    data = []
+    classes = []
+    nbImage = 0
+    for filename in os.listdir(C):
+        img = cv2.imread(os.path.join(C, filename))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        dims = (28, 28)
+        resized = cv2.resize(gray, dims, interpolation=cv2.INTER_AREA)
+        normalized = resized / 255.0
+        vectorized = normalized.reshape(1, 28 * 28)
+        data.append(vectorized)
+        classes.append(1)
+        nbImage = nbImage+1
+
+    for filename in os.listdir(N):
+        img = cv2.imread(os.path.join(N, filename))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        dims = (28, 28)
+        resized = cv2.resize(gray, dims, interpolation=cv2.INTER_AREA)
+        normalized = resized / 255.0
+        vectorized = normalized.reshape(1, 28 * 28)
+        data.append(vectorized)
+        classes.append(2)
+        nbImage = nbImage + 1
+
+    for filename in os.listdir(S):
+        img = cv2.imread(os.path.join(S, filename))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        dims = (28, 28)
+        resized = cv2.resize(gray, dims, interpolation=cv2.INTER_AREA)
+        normalized = resized / 255.0
+        vectorized = normalized.reshape(1, 28 * 28)
+        data.append(vectorized)
+        classes.append(3)
+        nbImage = nbImage + 1
+
+    data = np.vstack(data)
+    nbValue = dims[0] * dims[1]
+    return nbImage, data , classes , nbValue
 
 ######################################################
 #              LINEAR SIMPLE                         #
 ######################################################
 def ClassificationLinearSimple () :
 
-   class Point(Structure):
-      _fields_ = [("x", c_float), ("y", c_float)]
+    class Point(Structure):
+        _fields_ = [("x", c_float), ("y", c_float)]
 
-   _dll.EntrainementLineaire.argtypes = [POINTER(POINTER(c_int)), POINTER(c_int), POINTER(c_double), c_int]
-   _dll.EntrainementLineaire.restype = POINTER(c_double)
+    _dll.EntrainementLineaire.argtypes = [POINTER(POINTER(c_int)), POINTER(c_int), POINTER(c_double), c_int]
+    _dll.EntrainementLineaire.restype = POINTER(c_double)
 
-   _dll.AffichageSeparation.argtypes = [POINTER(c_double), POINTER(POINTER(c_int)), POINTER(c_int)]
-   _dll.AffichageSeparation.restype = None
+    _dll.AffichageSeparation.argtypes = [POINTER(c_double), POINTER(POINTER(c_int)), POINTER(c_int)]
+    _dll.AffichageSeparation.restype = None
 
-   point = ((c_int * 2) * 3)()
-   for i in range(3):
-        point[i] = (c_int * 2)()
 
-   for i in range(3):
-     for j in range(2):
-        point[i][j] = random.randint(0,3)
+    points = [Point(1, 1), Point(2, 3), Point(3, 3)]
+    c_arrayPoint = (Point * len(points))(*points)
 
-   #points = [Point(1, 1), Point(2, 3), Point(3, 3)]
-   #c_arrayPoint = (Point * len(points))(*points)
+    pointSize = len(points)
 
-   pointSize = len(point)
+    classes = [1,0,0]
+    c_arrayClasses = (c_int * len(classes))(*classes)
 
-   classes = [1,0,0]
-   c_arrayClasses = (c_int * len(classes))(*classes)
+    # on Initialise les poids en random
+    W = [random.uniform(-1, 1),random.uniform(-1, 1),random.uniform(-1, 1)]
 
-   # on Initialise les poids en random
-   W = [random.uniform(-1, 1),random.uniform(-1, 1),random.uniform(-1, 1)]
-
-   c_arrayW = (c_double * len(W))(*W)
+    c_arrayW = (c_double * len(W))(*W)
 
 
 
-   # On lance l'entrainement linéaire
-   W = _dll.EntrainementLineaire(point, c_arrayClasses, c_arrayW, pointSize)
+    # On lance l'entrainement linéaire
+    W = _dll.EntrainementLineaire(c_arrayPoint, c_arrayClasses, c_arrayW, pointSize)
 
-#  test_points = (Point * 90000)()
-#  test_colors = (c_int * 90000)()
+    test_points = (Point * 90000)()
+    test_colors = (c_int * 90000)()
 
-#  # On calcul les zones de couleur
-#  _dll.AffichageSeparation(c_arrayW, test_points, test_colors)
+    # On calcul les zones de couleur
+    _dll.AffichageSeparation(c_arrayW, test_points, test_colors)
 
-#  x_test_points = []
-#  y_test_points = []
+    x_test_points = []
+    y_test_points = []
 
-#  for Point in test_points:
-#      x_test_points.append(float(Point.x))
-#      y_test_points.append(float(Point.y))
+    for Point in test_points:
+        x_test_points.append(float(Point.x))
+        y_test_points.append(float(Point.y))
 
-#  x_points = []
-#  y_points = []
+    x_points = []
+    y_points = []
 
-#  for Point in points:
-#      x_points.append(float(Point.x))
-#      y_points.append(float(Point.y))
+    for Point in points:
+        x_points.append(float(Point.x))
+        y_points.append(float(Point.y))
 
-#  test_color_string = ["lightcyan" if i == 0 else "pink" for i in test_colors]
-#  classes_string = ["blue" if i == 0 else "red" for i in classes]
+    test_color_string = ["lightcyan" if i == 0 else "pink" for i in test_colors]
+    classes_string = ["blue" if i == 0 else "red" for i in classes]
 
-#  # on affiche le tout
+    # on affiche le tout
 
-#  plt.scatter(x_test_points, y_test_points, c=test_color_string)
-#  plt.scatter(x_points, y_points, c=classes_string)
-#  plt.show()
+    plt.scatter(x_test_points, y_test_points, c=test_color_string)
+    plt.scatter(x_points, y_points, c=classes_string)
+    plt.show()
 
 
 ######################################################
 #            LINEAR MULTIPLE                         #
 ######################################################
 def ClassificationLinearMultiple ():
-   class Point(Structure):
-      _fields_ = [("x", c_float), ("y", c_float)]
+    class Point(Structure):
+        _fields_ = [("x", c_float), ("y", c_float)]
 
-   X = []
-   for i in range(50):
-      X.append(Point(random.random()*0.9+1, random.random()*0.9+1))
-   for i in range(50):
-      X.append(Point(random.random()*0.9+2, random.random()*0.9+2))
+    X = []
+    for i in range(50):
+        X.append(Point(random.random()*0.9+1, random.random()*0.9+1))
+    for i in range(50):
+        X.append(Point(random.random()*0.9+2, random.random()*0.9+2))
 
     #Génération du vecteur de cibles
-   Y = []
-   for i in range(50):
-      Y.append(1)
-   for i in range(50):
-      Y.append(-1)
+    Y = []
+    for i in range(50):
+       Y.append(1)
+    for i in range(50):
+       Y.append(-1)
 
-   x_points = X[0:50]
-   x_points1 = X[50:100]
-
-
-
-   c_arrayPoint = (Point * len(X))(*X)
-   pointSize = len(X)
-   c_arrayClasses = (c_int * len(Y))(*Y)
-
-   W = [random.uniform(-1, 1),random.uniform(-1, 1),random.uniform(-1, 1)]
-   c_arrayW = (c_double * len(W))(*W)
-
-   _dll.EntrainementLineaire(c_arrayPoint,c_arrayClasses,c_arrayW,pointSize)
-
-   test_points = (Point * 90000)()
-   test_colors = (c_int * 90000)()
-
-   _dll.AffichageSeparation(c_arrayW,test_points,test_colors)
-
-   xx = []
-   xy = []
-
-   yx = []
-   yy = []
-
-   for Point in x_points :
-      xx.append(float(Point.x))
-      xy.append(float(Point.y))
-
-   for Point in x_points1 :
-      yx.append(float(Point.x))
-      yy.append(float(Point.y))
-   plt.scatter(xx, xy, color='blue')
-   plt.scatter(yx, yy, color='red')
+    x_points = X[0:50]
+    x_points1 = X[50:100]
 
 
 
-   x_test_points = []
-   y_test_points = []
+    c_arrayPoint = (Point * len(X))(*X)
+    pointSize = len(X)
+    c_arrayClasses = (c_int * len(Y))(*Y)
 
-   for Point in test_points :
-      x_test_points.append(float(Point.x))
-      y_test_points.append(float(Point.y))
+    W = [random.uniform(-1, 1),random.uniform(-1, 1),random.uniform(-1, 1)]
+    c_arrayW = (c_double * len(W))(*W)
 
-   x_points = []
-   y_points = []
+    _dll.EntrainementLineaire(c_arrayPoint,c_arrayClasses,c_arrayW,pointSize)
 
-   for Point in X :
-      x_points.append(float(Point.x))
-      y_points.append(float(Point.y))
+    test_points = (Point * 90000)()
+    test_colors = (c_int * 90000)()
 
-   test_color_string = ["lightcyan" if i == 0 else "pink" for i in test_colors]
-   classes_string = ["blue" if i == 1 else "red" for i in Y]
+    _dll.AffichageSeparation(c_arrayW,test_points,test_colors)
 
-   #on affiche le tout
+    xx = []
+    xy = []
 
-   plt.scatter(x_test_points, y_test_points, c= test_color_string)
-   plt.scatter(x_points, y_points, c= classes_string)
-   plt.show()
+    yx = []
+    yy = []
+
+    for Point in x_points :
+       xx.append(float(Point.x))
+       xy.append(float(Point.y))
+
+    for Point in x_points1 :
+       yx.append(float(Point.x))
+       yy.append(float(Point.y))
+    plt.scatter(xx, xy, color='blue')
+    plt.scatter(yx, yy, color='red')
+
+
+
+    x_test_points = []
+    y_test_points = []
+
+    for Point in test_points :
+       x_test_points.append(float(Point.x))
+       y_test_points.append(float(Point.y))
+
+    x_points = []
+    y_points = []
+
+    for Point in X :
+       x_points.append(float(Point.x))
+       y_points.append(float(Point.y))
+
+    test_color_string = ["lightcyan" if i == 0 else "pink" for i in test_colors]
+    classes_string = ["blue" if i == 1 else "red" for i in Y]
+
+    #on affiche le tout
+
+    plt.scatter(x_test_points, y_test_points, c= test_color_string)
+    plt.scatter(x_points, y_points, c= classes_string)
+    plt.show()
 
 ######################################################
 #                         XOR                        #
@@ -340,73 +381,76 @@ def RegressionLineaireSimple() :
 #RegressionLineaireSimple()
 #ClassificationXOR()
 
-npl = [2,2,1]
-npl_ptr = (c_int * len(npl))(*npl)
-size = len(npl)
-
-pmc = PMC(npl_ptr,size)
-
-#points = [[0.0,1.0],[1.0,1.0],[0.0,1.0],[1.0,0.0]]
-#
-#point_array_ptr = (POINTER(c_float) * len(points))()
-#
-#for i, point in enumerate(points):
-#    point_i_array = (c_float * len(point))
-#    point_array_ptr[i] = point_i_array
-
-xor_points = np.array([
-    [0, 0],
-    [1, 1],
-    [0, 1],
-    [1, 0],
-], dtype=np.float32)
-
-rows, cols = xor_points.shape
-
-ptr = (POINTER(c_float) * rows)()
-for i in range(rows):
-    ptr[i] = xor_points[i].ctypes.data_as(POINTER(c_float))
-
-color = [[0],[0],[1],[1]]
-colorbis = [[-1],[-1],[1],[1]]
-n_elements = len(color) * len(color[0])
-
-# Créer un tableau de flottants en C
-color_array = (c_float * n_elements)()
-
-color_array_ptr = (POINTER(c_float) * len(color))()
-for i, couleur in enumerate(color):
-    # Créer un tableau de flottants pour chaque point
-    color_array = (c_float * len(couleur))(*couleur)
-    # Stocker ce tableau dans le tableau de pointeurs
-    color_array_ptr[i] = color_array
 
 
 
-pmc.train(ptr,len(xor_points),color_array_ptr,True)
+def PMCXor() :
+    xor_points = np.array([
+        [0, 0],
+        [1, 1],
+        [0, 1],
+        [1, 0],
+    ], dtype=np.float32)
 
-test_points = []
-test_colors = []
-for row in range(0,300):
-    for col in range(0,300):
-        p = (col / 100-1, row / 100-1)
-        p_list = list(p)
-        p_ptr = (c_float * len(p_list))(*p_list)
-        c = 'lightcyan' if pmc.predict(p_ptr,True)[0] >= 0 else 'pink'
-       # print(pmc.predict(p_ptr,True)[0])
-        test_points.append(p)
-        test_colors.append(c)
-test_points = np.array(test_points)
-test_colors = np.array(test_colors)
+    rows, cols = xor_points.shape
 
-array_1d = np.array(colorbis).flatten()
+    ptr = (POINTER(c_float) * rows)()
+    for i in range(rows):
+        ptr[i] = xor_points[i].ctypes.data_as(POINTER(c_float))
 
-xor_colors = ['blue' if c == 1 else 'red' for c in array_1d]
+    color = [[0],[0],[1],[1]]
+
+    array_1d = np.array(color).flatten()
+    xor_colors = ['blue' if c == 1 else 'red' for c in array_1d]
+
+    n_elements = len(color) * len(color[0])
+
+    # Créer un tableau de flottants en C
+    color_array = (c_float * n_elements)()
+
+    color_array_ptr = (POINTER(c_float) * len(color))()
+    for i, couleur in enumerate(color):
+        # Créer un tableau de flottants pour chaque point
+        color_array = (c_float * len(couleur))(*couleur)
+        # Stocker ce tableau dans le tableau de pointeurs
+        color_array_ptr[i] = color_array
 
 
+    npl = [2,2,1]
+    npl_ptr = (c_int * len(npl))(*npl)
+    size = len(npl)
+
+    pmc = PMC(npl_ptr,size)
+    pmc.train(ptr,len(xor_points),color_array_ptr,True)
+
+    test_points = []
+    test_colors = []
+    for row in range(0,300):
+        for col in range(0,300):
+            p = (col / 100-1, row / 100-1)
+            p_list = list(p)
+            p_ptr = (c_float * len(p_list))(*p_list)
+            c = 'lightcyan' if pmc.predict(p_ptr,True)[0] >= 0 else 'pink'
+            # print(pmc.predict(p_ptr,True)[0])
+            test_points.append(p)
+            test_colors.append(c)
+    test_points = np.array(test_points)
+    test_colors = np.array(test_colors)
+
+    plt.scatter(test_points[:, 0], test_points[:, 1], c=test_colors)
+    plt.scatter(xor_points[:, 0], xor_points[:, 1], c=xor_colors)
+    plt.show()
 
 
+def EntrainementlineaireImage() :
 
-plt.scatter(test_points[:, 0], test_points[:, 1], c=test_colors)
-plt.scatter(xor_points[:, 0], xor_points[:, 1], c=xor_colors)
-plt.show()
+    nbImage , data , classes , nbValue = loadDataSet()
+    W = [i for i in range(nbImage)]
+
+    data_ptr = data.ctypes.data_as(c_void_p)
+    classes_array = (c_double* len(classes))(*classes)
+    classes_ptr = POINTER(classes_array)
+
+    _dll.EntrainementLineaireImage(data_ptr,classes_ptr,POINTER(W),nbImage,nbValue)
+
+EntrainementlineaireImage()
