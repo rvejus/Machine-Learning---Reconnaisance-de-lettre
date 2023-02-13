@@ -3,17 +3,14 @@
 
 
 
-double* EntrainementLineaire(float** points, int* classes, double* W, int nbElem) {
-
-
-	std::cout << points[0][0] << "-" << points[0][1] << " / " << points[1][0] << "-" << points[1][1] << " / " << points[2][0] << "-" << points[2][1] << endl;
-	std::cout << classes[0] << " / " << classes[1] << " / " << classes[2] << endl;
+double* EntrainementLineaire(point* points, int* classes, double* W, int nbElem) {
+	srand(time(NULL));
 	for (int i = 0; i < 100000; i++) {
 		int k = rand() % nbElem;
 
 		int yK = classes[k];
 
-		float Xk[3] = { 1, points[k][0], points[k][1] };
+		float Xk[3] = { 1, points[k].x, points[k].y };
 
 
 		float gXk = 0;
@@ -41,32 +38,27 @@ double* EntrainementLineaire(float** points, int* classes, double* W, int nbElem
 }
 
 
-void AffichageSeparation(double* W, float** test_points, int* test_classes) {
+void AffichageSeparation(double* W, point* test_points, int* test_classes) {
 
-	float p[2];
+	point p(0,0);
 	int i = 0;
 	for (float row = 0; row < 300; row++) {
 		for (float col = 0; col < 300; col++) {
-			p[0] = col / 100;
-			p[1] = row / 100;
-			float couleur = (W[0] * 1) + (W[1] * p[0]) + (W[2] * p[1]);
+			p.x = col / 100;
+			p.y = row / 100;
+			float couleur = (W[0] * 1) + (W[1] * p.x) + (W[2] * p.y);
 			if (couleur >= 0) {
 				couleur = 0;
 			}
 			else {
 				couleur = 1;
 			}
-			test_points[i][0] = p[0];
-			test_points[i][1] = p[1];
+			test_points[i].x = p.x;
+			test_points[i].y = p.y;
 			test_classes[i] = couleur;
 			i++;
 		}
 	}
-}
-
-
-void HelloWorld() {
-	printf("HelloWorld");
 }
 
 
@@ -81,17 +73,17 @@ float* predictPMC(PMC* instance, float* inputs, bool is_classification) {
 
 void trainPMC(PMC* instance, float** X_train, int X_train_size, float** Y_train, bool is_classification, float alpha , int nb_iter) {
 	for (int i = 0; i < X_train_size; i++) {
-		cout << "Color : " << Y_train[i][0] << endl;
+		std::cout << "Color : " << Y_train[i][0] << endl;
 	}
 	for (int i = 0; i < X_train_size; i++) {
-		cout << "point : " <<"X : " << X_train[i][0] << " Y : " << X_train[i][1] << endl;
+		std::cout << "point : " <<"X : " << X_train[i][0] << " Y : " << X_train[i][1] << endl;
 	}
 	instance->train(X_train, X_train_size, Y_train, is_classification, alpha, nb_iter);
 }
 
 PMC* initPMC(int* npl, int nplSize) {
 	for (int i = 0 ; i < nplSize; i++) {
-		cout << "Npl : " << npl[i] << endl;
+		std::cout << "Npl : " << npl[i] << endl;
 	}
 	return new PMC(npl, nplSize);
 }
@@ -332,42 +324,69 @@ int* predictionRBF(point* points, int nbPoints, point* centres, int nbCluster) {
 			centres[i].y = majCentre[i].y / nbPointDansCluster[i];
 		}
 	}
-
-
 	return assignement;
-
 }
 
-double* EntrainementLineaireImage(double* data, double* classe, double* W,int nbImages, int nbValue) {
+float* EntrainementLineaireImage(float* data, float* classe, float* W,float* Xk,int nbImages, int nbValue, int dimension) {
 	srand(time(NULL));
 
-	// On rendomise nos poids initial
+	// On randomise nos poids initial
 	for (int i = 0; i < nbValue + 1; i++) {
-		W[i] = (double)rand() / RAND_MAX;
-	}
-
-	for (int i = 0; i < 100000; i++) {
+		W[i] = ((float)rand() / RAND_MAX*2)-1;
+	} 
+	
+	/*for (int n = 0; n < 6; n++) {
+		cout << data[n] << endl;
+	} */
+	for (int i = 0; i < 10000; i++) {
 		int k = rand() % nbImages;
-		double Yk = classe[k];
-		double *Xk = (double*)malloc(sizeof(double) * nbValue +1);
+		
+		float Yk = classe[k];
+		
 		Xk[0] = 1.0;
 		for (int j = 0; j < nbValue; j++) {
-			Xk[j + 1] = data[k * 28 + j];
+			Xk[j + 1] = data[k * dimension + j];
+			//std::cout << "XK :" << Xk[j+1] << endl;
 		}
-
-		double GXk = 0;
+		float dotProduct = 0;
+		float GXk ;
 		for (int j = 0; j < nbValue; j++) {
-			GXk += W[j] * Xk[j];
+			dotProduct = (W[j] * Xk[j])+ dotProduct;
 		}
-		if (GXk >= 0) {
+		if (dotProduct >= 0) {
 			GXk = 1;
 		}
 		else { 
 			GXk = -1;
 		}
+		for (int j = 0; j < nbValue +1 ; j++) {
+			W[j] = 0.001 * (Yk - GXk) * Xk[j] + W[j];
+		}
 		for (int j = 0; j < nbValue + 1; j++) {
-			W[j] += 0.01 * (Yk - GXk) * Xk[j];
+			Xk[j] = 0;
 		}
 	}
+	
+	/*for (int i = 0; i < nbValue; i++) {
+		cout << "W[" << i << "] : " << W[i] << endl;
+	} */
 	return W;
+}
+
+
+int predictImage(float* data , float* W, int nbValue) {
+	float dotProduct = 0;
+	for (int i = 0; i < nbValue; i++) {
+		dotProduct += (W[i] * data[i]);
+	}
+	if (dotProduct >= 0) {
+		return 1;
+	}
+	else {
+		return -1;
+	}
+}
+
+void free_float(float* ptr) {
+	free(ptr);
 }
