@@ -7,7 +7,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-_dll = cdll.LoadLibrary("C:/Users/Nama/source/repos/rvejus/Machine-Learning---Reconnaisance-de-lettre/dll_machineLearning.dll")
+_dll = cdll.LoadLibrary("C:/Users/33783/Documents/5A3DJV/Machine Learning/Machine-Learning---Reconnaisance-de-lettre/dll_machineLearning.dll")
+
+#initialisation des fonctions de la dll
+
+class Point(Structure):
+    _fields_ = [("x", c_float), ("y", c_float)]
 
 _dll.initPMC.argtypes = [POINTER(c_int), c_int]
 _dll.initPMC.restype = c_void_p
@@ -26,6 +31,9 @@ _dll.EntrainementLineaireImage.restype = POINTER(c_float)
 
 _dll.predictImage.argtypes = [POINTER(c_float),POINTER(c_float), c_int]
 _dll.predictImage.restype = c_int
+
+_dll.predictionRBF.argtypes =  [POINTER(Point),c_int,POINTER(Point),c_int]
+_dll.predictionRBF.restype = POINTER(c_int)
 
 _dll.free_float.argtypes = [POINTER(c_float)]
 _dll.free_float.restype = None
@@ -92,7 +100,7 @@ def loadDataSet(C,classe, N, classeN):
     nbValue = dims[0] * dims[1]
 
     return nbImage, data, classes, nbValue
-
+#permet de recuperer les data d'une image
 def loadImage(C):
     data = []
 
@@ -117,6 +125,20 @@ def ConvertirPointerFloat(flat_data):
     double_pointer = cast(pointer_to_ctypes_array, POINTER(c_float))
     return double_pointer
 
+#fonction qui permet de stocker les Poids des entrainement
+def StockW(W_ptr, nomStokage , nbValue):
+    W_value = [W_ptr[i] for i in range(nbValue)]
+    with open(nomStokage, "w") as f:
+        f.writelines([str(x) + "\n" for x in W_value])
+
+#fonction qui permet de charger les Poids des entrainement
+def LoadW(nomStokage):
+    with open(nomStokage, "r") as f:
+        lines = f.readlines()
+        W_ptr = [float(line.strip()) for line in lines]
+        return W_ptr
+
+
 ######################################################
 #              LINEAR SIMPLE                         #
 ######################################################
@@ -139,6 +161,7 @@ def ClassificationLinearSimple():
     Xk_ptr = ConvertirPointerFloat(Xk)
     # On lance l'entrainement linéaire
     W = _dll.EntrainementLineaireImage(c_arrayPoint,c_arrayClasses,c_arrayW,Xk_ptr,3,2,2)
+    StockW(W,"LineaireSimple.txt",3)
     test_point , test_color = color_grid(c_arrayW,300,300)
 
 
@@ -185,8 +208,8 @@ def ClassificationLinearMultiple():
     W = [random.uniform(-1, 1), random.uniform(-1, 1), random.uniform(-1, 1)]
     c_arrayW = (c_double * len(W))(*W)
 
-    _dll.EntrainementLineaire(c_arrayPoint, c_arrayClasses, c_arrayW, pointSize)
-
+    W =_dll.EntrainementLineaire(c_arrayPoint, c_arrayClasses, c_arrayW, pointSize)
+    StockW(W,"LineaireMultiple.txt",pointSize)
     test_points = (Point * 90000)()
     test_colors = (c_int * 90000)()
 
@@ -330,10 +353,6 @@ def RegressionLineaireSimple():
     plt.scatter(x_points, y_points, c=classes_string)
     plt.show()
 
-
-
-
-
 def PMCXor():
     xor_points = np.array([
         [0, 0],
@@ -394,17 +413,7 @@ def PMCXor():
     plt.show()
 
 
-def StockW(W_ptr, nomStokage , nbValue):
-    W_value = [W_ptr[i] for i in range(nbValue)]
-    with open(nomStokage, "w") as f:
-        f.writelines([str(x) + "\n" for x in W_value])
-
-def LoadW(nomStokage):
-    with open(nomStokage, "r") as f:
-        lines = f.readlines()
-        W_ptr = [float(line.strip()) for line in lines]
-        return W_ptr
-
+#fonction qui permet d'entrainer un modele lineaire par rapport a notre dataset
 def EntrainementlineaireImage():
     #Entrainement d'un modele pour la lettre C
     nbImage, data, classes, nbValue = loadDataSet("Dataset/C/",1,"Dataset/N/",-1)
@@ -419,7 +428,7 @@ def EntrainementlineaireImage():
     Xk_ptr = ConvertirPointerFloat(Xk)
 
     W_ptr = _dll.EntrainementLineaireImage(data_ptr, classe_ptr, W_ptr,Xk_ptr, nbImage, nbValue,28)
-    StockW(W_ptr,"EntrainementLineaireC.txt",nbValue)
+    StockW(W_ptr,"EntrainementLineaire.txt",nbValue)
 
     # Entrainement d'un modele pour la lettre N
 
@@ -454,6 +463,7 @@ def EntrainementlineaireImage():
 
     print ("fin train")
 
+#fonction qui permet de predire la classe de notre Image
 def CheckImageLineaire():
     WC = LoadW("EntrainementLineaireC.txt")
     WC_ptr = ConvertirPointerFloat(WC)
@@ -480,10 +490,10 @@ def CheckImageLineaire():
     #    print("Lettre S")
 
 
-EntrainementlineaireImage()
-CheckImageLineaire()
+#EntrainementlineaireImage()
+#CheckImageLineaire()
 # PMCXor()
-#ClassificationLinearMultiple()
+ClassificationLinearMultiple()
 #ClassificationLinearSimple()
-# RegressionLineaireSimple()
+
 # ClassificationXOR()
