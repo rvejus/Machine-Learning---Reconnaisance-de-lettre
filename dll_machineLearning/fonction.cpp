@@ -109,16 +109,16 @@ PMC* initPMC(int* npl, int nplSize) {
 	this->W = (float***)malloc(sizeof(float**) * nplSize);
 
 	for (int l = 0; l < nplSize; l++) {
-		this->W[l] = (float**)malloc(sizeof(float*) * (npl[l - 1] + 2));
+		this->W[l] = (float**)malloc(sizeof(float*) * (npl[l - 1] +1));
 		if (l == 0) {
 			//std::cout << "l=0" << std::endl;
 			continue;
 		}
-		for (int i = 0; i <= this->D[l - 1] + 1; i++) {
+		for (int i = 0; i < this->D[l - 1] + 1; i++) {
 
 			//std::cout << "i" << std::endl;
-			this->W[l][i] = (float*)malloc(sizeof(float) * (npl[l] + 2));
-			for (int j = 1; j <= this->D[l] + 1; j++) {
+			this->W[l][i] = (float*)malloc(sizeof(float) * (npl[l]+1));
+			for (int j = 1; j < this->D[l] + 1; j++) {
 				//std::cout << "j" << std::endl;
 
 				if (j == 0) {
@@ -140,14 +140,14 @@ PMC* initPMC(int* npl, int nplSize) {
 		//std::cout << "l" << std::endl;
 		this->X[l] = (float*)malloc(sizeof(float) * (npl[l] + 2));
 		this->delta[l] = (float*)malloc(sizeof(float) * (npl[l] + 2));
-		for (int j = 0; j <= this->D[l] + 1; j++) {
+		for (int j = 0; j < this->D[l] + 1; j++) {
 			//std::cout << "j" << std::endl;
-			this->delta[l][j] = 0;
+			this->delta[l][j] = 0.0;
 			if (j == 0) {
-				this->X[l][j] = 1;
+				this->X[l][j] = 1.0;
 			}
 			else {
-				this->X[l][j] = 0;
+				this->X[l][j] = 0.0;
 			}
 		}
 	}
@@ -168,7 +168,7 @@ PMC::~PMC() {
 }
 
 void PMC::_propagate(float* inputs, bool is_classification) {
-	for (int j = 1; j <= this->D[0] + 1; j++) {
+	for (int j = 1; j < this->D[0] + 1; j++) {
 		this->X[0][j] = inputs[j - 1];
 	}
 	//std::cout << "finished first for" << std::endl;
@@ -191,6 +191,7 @@ void PMC::_propagate(float* inputs, bool is_classification) {
 				total += this->W[l][i][j] * this->X[l - 1][i];
 			}
 			//std::cout << "finished i for" << std::endl;
+			//std::cout << "finished i for" << std::endl;
 			this->X[l][j] = total;
 			if (is_classification==true || l < this->L) {
 				//std::cout << "is_class" << std::endl;
@@ -204,8 +205,6 @@ void PMC::_propagate(float* inputs, bool is_classification) {
 }
 
 float* PMC::predict(float* inputs, bool is_classification) {
-	
-
 	this->_propagate(inputs, is_classification);
 	//D[L]+1 pour la taille du dernier Layer et -1 pour retirer le biais 
 	int output_size = sizeof(this->X[this->L]) / sizeof(this->X[this->L][0]);
@@ -220,8 +219,8 @@ void PMC::train(float** X_train,
 	int X_train_size,
 	float** Y_train,
 	bool is_classification,
-	float alpha = 0.01,
-	int nb_iter = 10000)
+	float alpha,
+	int nb_iter)
 {
 	//std::cout << "train" << std::endl;
 	for (int it = 0; it < nb_iter; it++) {
@@ -248,7 +247,7 @@ void PMC::train(float** X_train,
 		}
 		//std::cout << "first for finished" << std::endl;
 
-		for (int l = this->D_size - 1; l > 2; l--) {
+		for (int l = this->D_size - 1; l >= 2; l--) {
 			//std::cout << "l= "<<l << std::endl;
 			for (int i = 1; i < this->D[l - 1] + 1; i++) {
 				//std::cout << "i= " << i << std::endl;
