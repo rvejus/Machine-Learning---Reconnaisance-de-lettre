@@ -7,8 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 
-_dll = cdll.LoadLibrary(
-    "C:/Users/33783/Documents/5A3DJV/Machine Learning/Machine-Learning---Reconnaisance-de-lettre/dll_machineLearning.dll")
+_dll = cdll.LoadLibrary("C:/Users/Nama/source/repos/rvejus/Machine-Learning---Reconnaisance-de-lettre/dll_machineLearning.dll")
 
 _dll.initPMC.argtypes = [POINTER(c_int), c_int]
 _dll.initPMC.restype = c_void_p
@@ -36,7 +35,7 @@ class PMC(object):
     def predict(self, inputs, is_classification):
         return _dll.predictPMC(self, inputs, is_classification)
 
-    def train(self, X_train, X_train_size, Y_train, is_classification, alpha=0.1, nb_iter=10000):
+    def train(self, X_train, X_train_size, Y_train, is_classification, alpha=0.01, nb_iter=100000):
         return _dll.trainPMC(self, X_train, X_train_size, Y_train, is_classification, alpha, nb_iter)
 
 
@@ -389,15 +388,12 @@ def PMCXor():
     for i in range(rows):
         ptr[i] = xor_points[i].ctypes.data_as(POINTER(c_float))
 
-    color = [[0], [0], [1], [1]]
+    color = [[-1], [-1], [1], [1]]
 
     array_1d = np.array(color).flatten()
     xor_colors = ['blue' if c == 1 else 'red' for c in array_1d]
-
-    n_elements = len(color) * len(color[0])
-
-    # Créer un tableau de flottants en C
-    color_array = (c_float * n_elements)()
+    print(xor_colors)
+    
 
     color_array_ptr = (POINTER(c_float) * len(color))()
     for i, couleur in enumerate(color):
@@ -411,8 +407,9 @@ def PMCXor():
     size = len(npl)
 
     pmc = PMC(npl_ptr, size)
-    pmc.train(ptr, len(xor_points), color_array_ptr, True)
-
+    #print(pmc.predict()[0])
+    pmc.train(ptr, len(xor_points), color_array_ptr, True, 0.01, 100000)
+    print(random.uniform(-1,1))
     test_points = []
     test_colors = []
     for row in range(0, 300):
@@ -420,9 +417,14 @@ def PMCXor():
             p = (col / 100 - 1, row / 100 - 1)
             p_list = list(p)
             p_ptr = (c_float * len(p_list))(*p_list)
-            c = 'lightcyan' if pmc.predict(p_ptr, True)[0] >= 0 else 'pink'
-            # print(pmc.predict(p_ptr,True)[0])
-            test_points.append(p)
+            
+            pred = pmc.predict(p_ptr, True)
+            pred_ptr = cast(pred, POINTER(c_float))
+            pred_py0 = pred_ptr[0]
+            c = 'lightcyan' if pred_py0 >= 0 else 'pink'
+            #print(pred_py0)
+            #print(pmc.predict(p_ptr,True)[0])
+            test_points.append(p_list)
             test_colors.append(c)
     test_points = np.array(test_points)
     test_colors = np.array(test_colors)
@@ -452,5 +454,5 @@ def EntrainementlineaireImage():
     _dll.EntrainementLineaireImage(data_ptr, classe_ptr, W_ptr, nbImage, nbValue)
 
 
-EntrainementlineaireImage()
-# PMCXor()
+#EntrainementlineaireImage()
+PMCXor()

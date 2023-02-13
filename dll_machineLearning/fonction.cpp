@@ -103,7 +103,7 @@ PMC* initPMC(int* npl, int nplSize) {
 	this->D = npl;
 	this->D_size = nplSize;
 	this->L = nplSize - 1;
-
+	srand(time(NULL));
 	// Initialisation des W
 
 	this->W = (float***)malloc(sizeof(float**) * nplSize);
@@ -212,6 +212,7 @@ float* PMC::predict(float* inputs, bool is_classification) {
 	for (int i = 0; i < output_size; i++) {
 		output[i] = this->X[this->L][i + 1];
 	}
+	std::cout<<"from c++ " << output[0] << std::endl;
 	return output;
 }
 
@@ -222,6 +223,7 @@ void PMC::train(float** X_train,
 	float alpha,
 	int nb_iter)
 {
+	srand(time(NULL));
 	//std::cout << "train" << std::endl;
 	for (int it = 0; it < nb_iter; it++) {
 		//std::cout << "it= " << it << std::endl;
