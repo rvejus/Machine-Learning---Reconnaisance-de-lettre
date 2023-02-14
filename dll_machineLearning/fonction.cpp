@@ -334,7 +334,7 @@ float* EntrainementLineaireImage(float* data, float* classe, float* W,float* Xk,
 
 	// On randomise nos poids initial
 	for (int i = 0; i < nbValue + 1; i++) {
-		W[i] = ((float)rand() / RAND_MAX*2)-1;
+		W[i] = ((float(rand()) / float(RAND_MAX)) * (1 - -1)) + -1;
 	} 
 	
 	/*for (int n = 0; n < 6; n++) {
@@ -344,25 +344,27 @@ float* EntrainementLineaireImage(float* data, float* classe, float* W,float* Xk,
 		int k = rand() % nbImages;
 		
 		float Yk = classe[k];
+		//cout <<"Yk : " << Yk << endl;
 		
 		Xk[0] = 1.0;
-		for (int j = 0; j < nbValue; j++) {
-			Xk[j + 1] = data[k * dimension + j];
+		for (int j = 0; j < nbValue ; j++) {
+			Xk[j + 1] = data[k * nbValue + j];
 			//std::cout << "XK :" << Xk[j+1] << endl;
 		}
 		float dotProduct = 0;
 		float GXk ;
 		for (int j = 0; j < nbValue; j++) {
-			dotProduct = (W[j] * Xk[j])+ dotProduct;
+			dotProduct += (W[j] * Xk[j]);
 		}
-		if (dotProduct >= 0) {
+		if (dotProduct > 0) {
 			GXk = 1;
 		}
 		else { 
 			GXk = -1;
 		}
+		cout << "GXK :" << GXk << endl;
 		for (int j = 0; j < nbValue +1 ; j++) {
-			W[j] = 0.001 * (Yk - GXk) * Xk[j] + W[j];
+			W[j] = 0.01 * (Yk - GXk) * Xk[j] + W[j];
 		}
 		for (int j = 0; j < nbValue + 1; j++) {
 			Xk[j] = 0;

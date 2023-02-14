@@ -465,7 +465,7 @@ def EntrainementlineaireImage():
 
 #fonction qui permet de predire la classe de notre Image
 def CheckImageLineaire():
-    WC = LoadW("EntrainementLineaireC.txt")
+    WC = LoadW("EntrainementLineaire.txt")
     WC_ptr = ConvertirPointerFloat(WC)
     #WN = LoadW("EntrainementLineaireN.txt")
     #WN_ptr = ConvertirPointerFloat(WN)
@@ -490,10 +490,10 @@ def CheckImageLineaire():
     #    print("Lettre S")
 
 
-#EntrainementlineaireImage()
-#CheckImageLineaire()
+EntrainementlineaireImage()
+CheckImageLineaire()
 # PMCXor()
-ClassificationLinearMultiple()
+#ClassificationLinearMultiple()
 #ClassificationLinearSimple()
 
 # ClassificationXOR()
