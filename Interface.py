@@ -430,36 +430,37 @@ def EntrainementlineaireImage():
     W_ptr = _dll.EntrainementLineaireImage(data_ptr, classe_ptr, W_ptr,Xk_ptr, nbImage, nbValue,28)
     StockW(W_ptr,"EntrainementLineaire.txt",nbValue)
 
-    # Entrainement d'un modele pour la lettre N
+    # Entrainement d'un modele pour la lettre C et S
 
-    #nbImageN, dataN, classesN, nbValueN = loadDataSet()
-    #WN = [i for i in range(nbValueN)]
-    #XkN = [i for i in range(nbValueN)]
-    #flat_dataN = list(itertools.chain.from_iterable(dataN))
-    #data_ptrN = ConvertirPointerFloat(flat_dataN)
-    #classe_ptrN = ConvertirPointerFloat(classesN)
+    nbImageN, dataN, classesN, nbValueN = loadDataSet("Dataset/C/",1,"Dataset/S/",-1)
+    WN = [i for i in range(nbValueN)]
+    XkN = [i for i in range(nbValueN)]
+
+    flat_dataN = list(itertools.chain.from_iterable(dataN))
+    data_ptrN = ConvertirPointerFloat(flat_dataN)
+    classe_ptrN = ConvertirPointerFloat(classesN)
 #
-    #W_ptrN = ConvertirPointerFloat(WN)
-    #Xk_ptrN = ConvertirPointerFloat(XkN)
+    W_ptrN = ConvertirPointerFloat(WN)
+    Xk_ptrN = ConvertirPointerFloat(XkN)
 #
-    #W_ptrN = _dll.EntrainementLineaireImage(data_ptrN, classe_ptrN, W_ptrN,Xk_ptrN, nbImageN, nbValueN, 28)
-    #StockW(W_ptrN, "EntrainementLineaireN.txt", nbValueN)
+    W_ptrN = _dll.EntrainementLineaireImage(data_ptrN, classe_ptrN, W_ptrN,Xk_ptrN, nbImageN, nbValueN, 28)
+    StockW(W_ptrN, "EntrainementLineaireN.txt", nbValueN)
 
     # Entrainement d'un modele pour la lettre S
 
-   #nbImageS, dataS, classesS, nbValueS = loadDataSet("Dataset/S/",3)
-   #WS = [i for i in range(nbValueS)]
-   #XkS = [i for i in range(nbValueS)]
+    nbImageS, dataS, classesS, nbValueS = loadDataSet("Dataset/S/",1,"Dataset/N/",-1)
+    WS = [i for i in range(nbValueS)]
+    XkS = [i for i in range(nbValueS)]
 
-   #flat_dataS = list(itertools.chain.from_iterable(dataS))
-   #data_ptrS = ConvertirPointerFloat(flat_dataS)
-   #classe_ptrS = ConvertirPointerFloat(classesS)
+    flat_dataS = list(itertools.chain.from_iterable(dataS))
+    data_ptrS = ConvertirPointerFloat(flat_dataS)
+    classe_ptrS = ConvertirPointerFloat(classesS)
 
-   #W_ptrS = ConvertirPointerFloat(WS)
-   #Xk_ptrS = ConvertirPointerFloat(XkS)
+    W_ptrS = ConvertirPointerFloat(WS)
+    Xk_ptrS = ConvertirPointerFloat(XkS)
 
-   #W_ptrS = _dll.EntrainementLineaireImage(data_ptrS, classe_ptrS, W_ptrS, Xk_ptrS,nbImageS, nbValueS, 28)
-   #StockW(W_ptrS, "EntrainementLineaireS.txt", nbValueS)
+    W_ptrS = _dll.EntrainementLineaireImage(data_ptrS, classe_ptrS, W_ptrS, Xk_ptrS,nbImageS, nbValueS, 28)
+    StockW(W_ptrS, "EntrainementLineaireS.txt", nbValueS)
 
     print ("fin train")
 
@@ -467,23 +468,27 @@ def EntrainementlineaireImage():
 def CheckImageLineaire():
     WC = LoadW("EntrainementLineaire.txt")
     WC_ptr = ConvertirPointerFloat(WC)
-    #WN = LoadW("EntrainementLineaireN.txt")
-    #WN_ptr = ConvertirPointerFloat(WN)
-    #WS = LoadW("EntrainementLineaireS.txt")
-    #WS_ptr = ConvertirPointerFloat(WS)
+    WN = LoadW("EntrainementLineaireN.txt")
+    WN_ptr = ConvertirPointerFloat(WN)
+    WS = LoadW("EntrainementLineaireS.txt")
+    WS_ptr = ConvertirPointerFloat(WS)
 
-    data , nbValue = loadImage("C (67).png")
+    data , nbValue = loadImage("S (69).png")
     flat_data = list(itertools.chain.from_iterable(data))
     data_ptr = ConvertirPointerFloat(flat_data)
 
     resC = _dll.predictImage(data_ptr,WC_ptr,nbValue)
+    resN = _dll.predictImage(data_ptr, WN_ptr, nbValue)
+    resS = _dll.predictImage(data_ptr, WS_ptr, nbValue)
     print (resC)
-    #resN = _dll.predictImage(data_ptr, WN_ptr, nbValue)
-    #resS = _dll.predictImage(data_ptr, WS_ptr, nbValue)
-    if(resC == 1):
+
+    if(resC == 1 and resN == 1):
         print("Lettre C")
-    else :
+    if (resC == -1 and resS == -1):
         print("Lettre N")
+    if (resN == -1 and resS == 1):
+        print("Lettre S")
+
     #if (resN ==1):
     #    print("Lettre N")
     #if (resS ==1):
